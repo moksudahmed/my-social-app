@@ -1,0 +1,32 @@
+/* styles.css */
+
+.app-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  .welcome-header {
+    color: #333;
+  }
+  
+  .new-post-section {
+    margin-top: 20px;
+  }
+  
+  .post-card {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .post-actions button {
+    margin-right: 10px;
+  }
+  
+  .authentication-section {
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+  }
+  
