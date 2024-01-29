@@ -1,5 +1,4 @@
 import React from 'react';
-
 const postStyle = {
   border: '1px solid #ccc',
   borderRadius: '8px',
@@ -20,15 +19,21 @@ const buttonStyle = {
   cursor: 'pointer',
 };
 
-const Post = ({ post }) => (
-  <div style={postStyle}>
-    <p>{post.content}</p>
-    <div style={actionsStyle}>
-      <button style={buttonStyle}>Like</button>
-      <button style={buttonStyle}>Comment</button>
-      <button style={buttonStyle}>Share</button>
+// Post.js
+
+
+const Post = ({ post, onLike, onComment, onShare }) => {
+  return (
+    <div className="post">
+      <p>{post.content}</p>
+      <div>
+        <button onClick={onLike}>Like</button>
+        <span>{post.likes} {post.likes === 1 ? 'like' : 'likes'}</span>
+      </div>
+      <button onClick={onComment}>Comment</button>
+      <button onClick={onShare}>Share</button>
     </div>
-  </div>
-);
+  );
+};
 
 export default Post;

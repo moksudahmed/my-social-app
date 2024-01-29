@@ -1,6 +1,7 @@
+// App.js
 import React, { useState, useEffect } from 'react';
-import './App.css'; // Import your global styles here
-import './module.css'
+import './App.css';
+import './module.css';
 import Post from './component/Post';
 import Registration from './component/Registration';
 import Login from './component/Login';
@@ -10,28 +11,24 @@ const API_BASE_URL = 'http://127.0.0.1:5000';
 const AppHeader = () => (
   <header className="header">
     <h1 className="logo">Your Logo</h1>
-    {/* Add other header content */}
   </header>
 );
 
 const AppFooter = () => (
   <footer className="footer">
     <h1>Footer</h1>
-    {/* Add footer content */}
   </footer>
 );
 
 const LeftSidebar = () => (
   <aside className="leftSidebar">
     <h1>Left Sidebar</h1>
-    {/* Add left sidebar content */}
   </aside>
 );
 
 const RightSidebar = () => (
   <aside className="rightSidebar">
     <h1>Right Sidebar</h1>
-    {/* Add right sidebar content */}
   </aside>
 );
 
@@ -64,7 +61,7 @@ const App = () => {
 
   const createPost = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/post`, {
+      const response = await fetch(`${API_BASE_URL}/posts/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,6 +78,54 @@ const App = () => {
       }
     } catch (error) {
       console.error('Error during creating post:', error);
+    }
+  };
+  const likePost = async (postId) => {
+    try {
+      // Implement the logic to send a like request to the server
+      const response = await fetch(`${API_BASE_URL}/posts/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ post_id: postId }),
+      });
+      
+      if (response.ok) {
+        // Refetch posts after liking
+        await fetchPosts();
+      } else {
+        console.error('Failed to like post');
+      }
+    } catch (error) {
+      console.error('Error during liking post:', error);
+    }
+  };
+  
+
+  const commentPost = async (postId) => {
+    console.log(`Commented on post with ID: ${postId}`);
+    // Implement the logic to open a comment dialog or navigate to a comment page
+  };
+
+  const sharePost = async (postId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts/${postId}/share`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.ok) {
+        fetchPosts();
+      } else {
+        console.error('Failed to share post');
+      }
+    } catch (error) {
+      console.error('Error during sharing post:', error);
     }
   };
 
@@ -128,14 +173,20 @@ const App = () => {
               <div className="postContainer">
                 <h2>Posts</h2>
                 {posts.map((post) => (
-                  <Post key={post._id.$oid} post={post} />
+                  <Post
+                    key={post._id.$oid}
+                    post={post}
+                    onLike={() => likePost(post._id.$oid)}
+                    onComment={() => commentPost(post._id.$oid)}
+                    onShare={() => sharePost(post._id.$oid)}
+                  />
                 ))}
               </div>
             </div>
           ) : (
             <>
               {showRegistration ? (
-                <Registration setLoggedIn={setLoggedIn} setAccessToken={setAccessToken} />
+                <Registration setLoggedIn={setLoggedIn} setAccessToken={setAccessToken} setShowRegistration={setShowRegistration} />
               ) : (
                 <>
                   {showLogin && (

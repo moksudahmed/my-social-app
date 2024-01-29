@@ -90,9 +90,12 @@ def post():
 def get_all_posts():
     try:
         current_user = get_jwt_identity()
+        print(current_user)
         # Assuming you have a 'posts' collection in your MongoDB
         posts = list(db.posts.find())
-
+        #posts = list(db.posts.find({'user_id': current_user}))
+        #posts = list(db.posts.find({'user_id': ObjectId(current_user)}))
+        
         # Use json_util to serialize ObjectId
         serialized_posts = json.loads(json_util.dumps(posts))
 
@@ -100,9 +103,34 @@ def get_all_posts():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-@app.route('/like/<string:post_id>', methods=['POST'])
+@app.route('/posts/like', methods=['POST'])
 @jwt_required()
-def like_post(post_id):
+def like_post():
+    try:
+        current_user = get_jwt_identity()
+        post_id = request.json.get('post_id')
+       
+        # Assuming you have a 'likes' collection in your MongoDB
+        # Replace 'your_likes_collection' with the actual name of your collection
+        likes_collection = db['your_likes_collection']
+
+        # Check if the user already liked the post
+        existing_like = likes_collection.find_one({'user_id': current_user, 'post_id': post_id})
+        if existing_like:
+            return jsonify({'message': 'You already liked this post'}), 400
+
+        # Insert like
+        like_data = {'user_id': current_user, 'post_id': post_id}
+        likes_collection.insert_one(like_data)
+
+        return jsonify({'message': 'Post liked successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+#@app.route('/like/<string:post_id>', methods=['POST'])
+#@jwt_required()
+def like_post2(post_id):
+    print("Hello")
     try:
         current_user = get_jwt_identity()
         post = db.posts.find_one({'_id': ObjectId(post_id)})
