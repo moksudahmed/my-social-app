@@ -1,0 +1,124 @@
+/* module.css */
+
+.appContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  background-color: #3498db;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+
+.logo {
+  font-size: 24px;
+}
+
+.mainContent {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.leftSidebar,
+.rightSidebar {
+  width: 200px;
+  background-color: #ecf0f1;
+  padding: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.mainSection {
+  flex-grow: 1;
+}
+
+.footer {
+  background-color: #3498db;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+
+.welcomeHeader {
+  color: #2ecc71;
+}
+
+.logoutSection {
+  margin-top: 10px;
+}
+
+.logoutButton {
+  background-color: #e74c3c;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.newPostSection {
+  margin-top: 20px;
+}
+
+.postInput {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+.postButton {
+  background-color: #3498db;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.postContainer {
+  margin-top: 20px;
+}
+
+.postCard {
+  background-color: #fff;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.postActions button {
+  margin-right: 10px;
+  background-color: #3498db;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.loginSection {
+  margin-top: 20px;
+}
+
+.loginButton,
+.registrationLinkButton {
+  background-color: #3498db;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.registrationLink {
+  margin-top: 10px;
+}
+
+.registrationLinkButton {
+  background-color: #2ecc71;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+}

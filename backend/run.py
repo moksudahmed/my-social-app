@@ -23,10 +23,13 @@ jwt = JWTManager(app)
 
 @app.route('/register', methods=['POST'])
 def register():
+ 
     try:
+     
         data = request.get_json()
+       
         existing_user = db.users.find_one({'username': data['username']})
-
+        print(data)
         if existing_user:
             return jsonify({'message': 'Username already exists'}), 400
 
@@ -34,9 +37,10 @@ def register():
             'username': data['username'],
             'password': data['password'],
             'email': data['email'],
-            'full_name': data['full_name']
+            'firstname': data['firstname'],
+            'lastname': data['lastname']            
         }
-
+        print(new_user)
         user_id = db.users.insert_one(new_user).inserted_id
         return jsonify({'message': 'User registered successfully', 'user_id': str(user_id)}), 201
 
