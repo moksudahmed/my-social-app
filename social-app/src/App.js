@@ -47,7 +47,7 @@ const App = () => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-
+      
       if (response.ok) {
         const data = await response.json();
         setPosts(data);
@@ -103,7 +103,6 @@ const App = () => {
     }
   };
   
-
   const commentPost = async (postId) => {
     console.log(`Commented on post with ID: ${postId}`);
     // Implement the logic to open a comment dialog or navigate to a comment page
@@ -179,6 +178,7 @@ const App = () => {
                     onLike={() => likePost(post._id.$oid)}
                     onComment={() => commentPost(post._id.$oid)}
                     onShare={() => sharePost(post._id.$oid)}
+                    accessToken={accessToken}
                   />
                 ))}
               </div>

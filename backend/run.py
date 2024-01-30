@@ -109,6 +109,27 @@ def like_post():
     try:
         current_user = get_jwt_identity()
         post_id = request.json.get('post_id')
+
+        urrent_user = get_jwt_identity()
+
+        post = db.posts.find_one({'_id': ObjectId(post_id)})
+        if post:
+            if current_user not in post['likes']:
+                db.posts.update_one({'_id': ObjectId(post_id)}, {'$push': {'likes': current_user}})
+                return jsonify({'message': 'Post liked successfully'}), 200
+            else:
+                return jsonify({'message': 'You have already liked this post'}), 400
+        else:
+            return jsonify({'message': 'Post not found'}), 404
+
+    except Exception as e:
+        return jsonify({'message': f'Error during liking post: {e}'}), 500
+
+
+def like_post_working_copy():
+    try:
+        current_user = get_jwt_identity()
+        post_id = request.json.get('post_id')
        
         # Assuming you have a 'likes' collection in your MongoDB
         # Replace 'your_likes_collection' with the actual name of your collection
@@ -127,33 +148,47 @@ def like_post():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-#@app.route('/like/<string:post_id>', methods=['POST'])
-#@jwt_required()
-def like_post2(post_id):
-    print("Hello")
+@app.route('/posts/comment', methods=['POST'])
+@jwt_required()
+def comment_post():
     try:
         current_user = get_jwt_identity()
-        post = db.posts.find_one({'_id': ObjectId(post_id)})
 
-        if post:
-            if current_user not in post['likes']:
-                db.posts.update_one({'_id': ObjectId(post_id)}, {'$push': {'likes': current_user}})
-                return jsonify({'message': 'Post liked successfully'}), 200
-            else:
-                return jsonify({'message': 'You have already liked this post'}), 400
+        if not current_user:
+            return jsonify({'message': 'Authentication required to comment'}), 401
+
+        data = request.get_json()
+        post_id = data.get('post_id')
+
+        if not post_id:
+            return jsonify({'message': 'Invalid post_id'}), 400
+
+        new_comment = {
+            'user_id': ObjectId(current_user),
+            'text': data.get('text')
+        }
+
+        # Assuming you have a MongoDB collection named 'posts'
+        result = db.posts.update_one({'_id': ObjectId(post_id)}, {'$push': {'comments': new_comment}})
+
+        if result.modified_count > 0:
+            return jsonify({'message': 'Comment added successfully'}), 200
         else:
             return jsonify({'message': 'Post not found'}), 404
 
     except Exception as e:
-        return jsonify({'message': f'Error during liking post: {e}'}), 500
+        return jsonify({'message': f'Error during commenting on post: {e}'}), 500
 
-@app.route('/comment/<string:post_id>', methods=['POST'])
-@jwt_required()
-def comment_post(post_id):
+
+#@app.route('/comment/<string:post_id>', methods=['POST'])
+#@app.route('/posts/comment', methods=['POST'])
+#@jwt_required()
+def comment_post2():    
     try:
         current_user = get_jwt_identity()
-        data = request.get_json()
-
+        data = request.get_json()        
+        post_id = post_id = request.json.get('post_id')
+        print(post_id)    
         new_comment = {
             'user_id': ObjectId(current_user),
             'text': data['text']
