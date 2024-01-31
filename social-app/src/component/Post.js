@@ -1,31 +1,12 @@
+// Post.js
 import React, { useState, useEffect } from 'react';
+import Comment from './Comment';
 
-const postStyle = {
-  border: '1px solid #ccc',
-  borderRadius: '8px',
-  padding: '16px',
-  marginBottom: '16px',
-};
-
-const actionsStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  marginTop: '8px',
-};
-
-const buttonStyle = {
-  padding: '8px',
-  margin: '0 4px',
-  borderRadius: '4px',
-  cursor: 'pointer',
-};
-
-const Post = ({ post, onLike, onComment, onShare, accessToken }) => {
+const Post = ({ post, onLike, onComment, onShare, accessToken, fetchPosts }) => {
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
 
   useEffect(() => {
-    // Set initial comments when the component mounts
     if (post && post.comments) {
       setComments(post.comments);
     }
@@ -50,16 +31,13 @@ const Post = ({ post, onLike, onComment, onShare, accessToken }) => {
             text: comment,
           }),
         });
-  
-        console.log('Comment API Response:', response);
-  
+        
         if (response.ok) {
           // Comment posted successfully, update the UI with the new comments
           const newComment = await response.json();
           setComments((prevComments) => [...prevComments, newComment]);
           setComment('');
-         
-          console.log('New Comment:', comments);
+          fetchPosts(); // Trigger the fetchPosts function to update the post list
         } else {
           console.error('Failed to post comment');
         }
@@ -68,44 +46,17 @@ const Post = ({ post, onLike, onComment, onShare, accessToken }) => {
       }
     }
   };
-  
-  
-  
-  const commentPost = async () => {
-    try {
-      // Assuming you have a route for comments like '/posts/:postId/comments'
-      const commentUrl = `/posts/${post._id.$oid}/comments`;
-
-      // Navigate to the comment page or open a comment dialog
-      window.location.href = commentUrl;
-
-      // If you are using a modal/dialog library, you can trigger the modal here
-      // Example using a hypothetical modal library
-      // openCommentDialog(postId);
-    } catch (error) {
-      console.error('Error while navigating to comment page:', error);
-    }
-  };
 
   return (
-    <div style={postStyle} className="post">
+    <div className="post">
       <p>{post.content}</p>
-      <div style={actionsStyle}>
-        <div>
-          <button style={buttonStyle} onClick={onLike}>
-            Like
-          </button>
-          <span>{post.likes.length} {post.likes.length === 1 ? 'like' : 'likes'}</span>
-        </div>
-        <div>
-          <button style={buttonStyle} onClick={commentPost}>
-            Comment
-          </button>
-          <button style={buttonStyle} onClick={onShare}>
-            Share
-          </button>
-        </div>
+      <div>
+        <button onClick={onLike}>Like</button>
+        <span>{post.likes.length} {post.likes.length === 1 ? 'like' : 'likes'}</span>
       </div>
+      <button onClick={onComment}>Comment</button>
+      <button onClick={onShare}>Share</button>
+
       <div>
         <form onSubmit={handleCommentSubmit}>
           <input
@@ -118,7 +69,7 @@ const Post = ({ post, onLike, onComment, onShare, accessToken }) => {
         </form>
         <ul>
           {comments.map((comment, index) => (
-            <li key={index}>{comment.text}</li>
+            <Comment key={index} post_id ={post._id.$oid} comment={comment} accessToken={accessToken} fetchPosts={fetchPosts} />
           ))}
         </ul>
       </div>

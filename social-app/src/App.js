@@ -5,32 +5,13 @@ import './module.css';
 import Post from './component/Post';
 import Registration from './component/Registration';
 import Login from './component/Login';
+import AppFooter from './component/layout/Footer'
+import AppHeader from './component/layout/Header';
+import LeftSidebar from './component/layout/LeftSidebar';
+import RightSidebar from './component/layout/RightSidebar';
 
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
-const AppHeader = () => (
-  <header className="header">
-    <h1 className="logo">Your Logo</h1>
-  </header>
-);
-
-const AppFooter = () => (
-  <footer className="footer">
-    <h1>Footer</h1>
-  </footer>
-);
-
-const LeftSidebar = () => (
-  <aside className="leftSidebar">
-    <h1>Left Sidebar</h1>
-  </aside>
-);
-
-const RightSidebar = () => (
-  <aside className="rightSidebar">
-    <h1>Right Sidebar</h1>
-  </aside>
-);
 
 const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -61,7 +42,7 @@ const App = () => {
 
   const createPost = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/posts/create`, {
+      const response = await fetch(`${API_BASE_URL}/post`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,7 +50,7 @@ const App = () => {
         },
         body: JSON.stringify({ content: newPostContent }),
       });
-
+  
       if (response.ok) {
         setNewPostContent('');
         fetchPosts();
@@ -80,6 +61,7 @@ const App = () => {
       console.error('Error during creating post:', error);
     }
   };
+  
   const likePost = async (postId) => {
     try {
       // Implement the logic to send a like request to the server
@@ -179,6 +161,7 @@ const App = () => {
                     onComment={() => commentPost(post._id.$oid)}
                     onShare={() => sharePost(post._id.$oid)}
                     accessToken={accessToken}
+                    fetchPosts = {fetchPosts}
                   />
                 ))}
               </div>

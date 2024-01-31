@@ -65,6 +65,7 @@ def login():
 @app.route('/post', methods=['POST'])
 @jwt_required()
 def post():
+    print("Hello")
     try:
         current_user = get_jwt_identity()
         data = request.get_json()
@@ -84,6 +85,44 @@ def post():
 
     except Exception as e:
         return jsonify({'message': f'Error during post creation: {e}'}), 500
+
+@app.route('/posts/reply', methods=['POST'])
+@jwt_required()
+def post_reply():
+    try:
+        
+        current_user = get_jwt_identity()
+        data = request.get_json()
+        
+        post_id = data.get('post_id')
+        comment_id = data.get('comment_id')
+        reply_text = data.get('text')
+        
+        if not (post_id and comment_id and reply_text):
+            return jsonify({'message': 'Invalid request parameters'}), 400
+
+        reply = {
+            '_id': ObjectId(),  # Generate a new ObjectId for the reply
+            'user_id': ObjectId(current_user),
+            'text': reply_text,
+        }
+        
+        # Update the comment with the new reply
+        
+        result = db.posts.update_one(
+            {'_id': ObjectId(post_id), 'comments.user_id': ObjectId(comment_id)},
+            {'$push': {'comments.$.replies': reply}}
+        )
+
+        print(result)
+        if result.modified_count == 0:
+            return jsonify({'message': 'Failed to post reply'}), 400
+
+        return jsonify({'message': 'Reply posted successfully', 'reply_id': str(reply['_id'])}), 201
+
+    except Exception as e:
+        return jsonify({'message': f'Error during reply submission: {e}'}), 500
+
 
 @app.route('/posts', methods=['GET'])
 @jwt_required()
