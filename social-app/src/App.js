@@ -1,4 +1,3 @@
-// App.js
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import './module.css';
@@ -9,9 +8,9 @@ import AppFooter from './component/layout/Footer'
 import AppHeader from './component/layout/Header';
 import LeftSidebar from './component/layout/LeftSidebar';
 import RightSidebar from './component/layout/RightSidebar';
+import PhotoPost from './component/PhotoPost'; // Import the new PhotoPost component
 
 const API_BASE_URL = 'http://127.0.0.1:5000';
-
 
 const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -20,6 +19,7 @@ const App = () => {
   const [newPostContent, setNewPostContent] = useState('');
   const [showRegistration, setShowRegistration] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [showPhotoPost, setShowPhotoPost] = useState(false);
 
   const fetchPosts = async () => {
     try {
@@ -61,10 +61,35 @@ const App = () => {
       console.error('Error during creating post:', error);
     }
   };
-  
+
+  const handlePhotoPost = async (contentType, content) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts/photo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          content_type: contentType,
+          content: content,
+        }),
+      });
+      console.log(response);
+      if (response.ok) {
+        console.log('Photo Post:', { content });
+        setShowPhotoPost(false);
+        fetchPosts();
+      } else {
+        console.error('Failed to post photo');
+      }
+    } catch (error) {
+      console.error('Error during photo post submission:', error);
+    }
+  };
+
   const likePost = async (postId) => {
     try {
-      // Implement the logic to send a like request to the server
       const response = await fetch(`${API_BASE_URL}/posts/like`, {
         method: 'POST',
         headers: {
@@ -75,7 +100,6 @@ const App = () => {
       });
       
       if (response.ok) {
-        // Refetch posts after liking
         await fetchPosts();
       } else {
         console.error('Failed to like post');
@@ -84,7 +108,7 @@ const App = () => {
       console.error('Error during liking post:', error);
     }
   };
-  
+
   const commentPost = async (postId) => {
     console.log(`Commented on post with ID: ${postId}`);
     // Implement the logic to open a comment dialog or navigate to a comment page
@@ -150,7 +174,16 @@ const App = () => {
                 <button className="postButton" onClick={createPost}>
                   Post
                 </button>
+
+                {/* New button for posting photos */}
+                <button className="postButton" onClick={() => setShowPhotoPost(true)}>
+                  Post Photo
+                </button>
               </div>
+
+              {/* Display the PhotoPost component when showPhotoPost is true */}
+              {showPhotoPost && <PhotoPost onPost={handlePhotoPost} accessToken={accessToken} />}
+
               <div className="postContainer">
                 <h2>Posts</h2>
                 {posts.map((post) => (
@@ -161,7 +194,7 @@ const App = () => {
                     onComment={() => commentPost(post._id.$oid)}
                     onShare={() => sharePost(post._id.$oid)}
                     accessToken={accessToken}
-                    fetchPosts = {fetchPosts}
+                    fetchPosts={fetchPosts}
                   />
                 ))}
               </div>

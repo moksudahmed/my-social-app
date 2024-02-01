@@ -5,6 +5,8 @@ from bson import ObjectId
 from flask_cors import CORS
 from bson import json_util
 import json
+from flask_restful import Api, Resource
+import os
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -65,7 +67,48 @@ def login():
 @app.route('/post', methods=['POST'])
 @jwt_required()
 def post():
-    print("Hello")
+    try:
+        current_user = get_jwt_identity()
+        data = request.get_json()
+
+        content_type = data.get('content_type', 'text')  # Default to text if not provided
+        content = data.get('content')
+
+        if not content:
+            return jsonify({'message': 'Content is required'}), 400
+
+        new_post = {
+            'user_id': ObjectId(current_user),
+            'content_type': content_type,
+            'content': content,
+            'likes': [],
+            'comments': [],
+            'shares': []
+        }
+
+        post_id = db.posts.insert_one(new_post).inserted_id
+        return jsonify({'message': 'Post created successfully', 'post_id': str(post_id)}), 201
+
+    except Exception as e:
+        return jsonify({'message': f'Error during post creation: {e}'}), 500
+
+# New endpoint for photo upload
+@app.route('/posts/photo', methods=['POST'])
+@jwt_required()
+def upload_photo():    
+    try:
+        photo = request.files['photo']              
+        photo_path = os.path.join('uploads', photo.filename)
+        print(photo_path)
+        photo.save(photo_path)          
+        return jsonify({'message': 'Photo uploaded successfully', 'photo_path': photo_path}), 201
+    except Exception as e:
+        print(f'Error during photo upload: {e}')  # Print the error to the server logs
+        return jsonify({'message': f'Error during photo upload: {e}'}), 500
+
+#@app.route('/post', methods=['POST'])
+#@jwt_required()
+def post2():
     try:
         current_user = get_jwt_identity()
         data = request.get_json()
