@@ -1,0 +1,62 @@
+/* Add this CSS to your styles file or component */
+
+.post {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.post p {
+  margin-bottom: 10px;
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.post-actions button {
+  padding: 8px;
+  margin-right: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.post-buttons button {
+  padding: 8px;
+  margin-right: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.post-comments form {
+  margin-bottom: 10px;
+}
+
+.post-comments input {
+  padding: 8px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.post-comments button {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.post-comments ul {
+  list-style: none;
+  padding: 0;
+}
+
+.post-comments li {
+  margin-bottom: 5px;
+}
+
+/* Add more styles as needed */
