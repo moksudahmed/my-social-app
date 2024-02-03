@@ -2,8 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import Comment from './Comment';
 import PhotoPost from './PhotoPost';
+import ImageViewer from './ImageViewer';
+import UserInfo from './UserInfo';
+import './post.css';
 
-const Post = ({ post, onLike, onComment, onShare, accessToken, fetchPosts }) => {
+const Post = ({ post, onLike, onComment, onShare, accessToken, fetchPosts, post_user }) => {
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
   const [showPhotoPost, setShowPhotoPost] = useState(false);
@@ -64,7 +67,6 @@ const Post = ({ post, onLike, onComment, onShare, accessToken, fetchPosts }) => 
       });
 
       if (response.ok) {
-        console.log('Photo Post:', { contentType, content });
         setShowPhotoPost(false);
         fetchPosts();
       } else {
@@ -77,18 +79,22 @@ const Post = ({ post, onLike, onComment, onShare, accessToken, fetchPosts }) => 
 
   return (
     <div className="post">
+      <UserInfo userId={post_user} />
       {post.content_type === 'text' && <p>{post.content}</p>}
-      {post.content_type === 'photo' && <img src={post.content} alt="Post" />}
-      <div>
+      {post.content_type === 'photo' && <ImageViewer imagesData={post.content}/>}
+      <div className="post-actions">
         <button onClick={onLike}>Like</button>
         <span>{post.likes.length} {post.likes.length === 1 ? 'like' : 'likes'}</span>
+        <span>{post.content.filename}</span>
       </div>
-      <button onClick={onComment}>Comment</button>
-      <button onClick={() => setShowPhotoPost(true)}>Post Photo</button>
+      <div className="post-buttons">
+        <button onClick={onComment}>Comment</button>
+        <button onClick={() => setShowPhotoPost(true)}>Post Photo</button>
+      </div>
 
       {showPhotoPost && <PhotoPost onPost={handlePhotoPost} />}
 
-      <div>
+      <div className="post-comments">
         <form onSubmit={handleCommentSubmit}>
           <input
             type="text"
@@ -100,7 +106,7 @@ const Post = ({ post, onLike, onComment, onShare, accessToken, fetchPosts }) => 
         </form>
         <ul>
           {comments.map((comment, index) => (
-            <Comment key={index} post_id={post._id.$oid} comment={comment} accessToken={accessToken} fetchPosts={fetchPosts} />
+            <Comment key={index} post_id={post._id.$oid} comment={comment} accessToken={accessToken} fetchPosts={fetchPosts} userId={post_user}/>
           ))}
         </ul>
       </div>

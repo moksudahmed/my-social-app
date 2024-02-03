@@ -9,6 +9,10 @@ import AppHeader from './component/layout/Header';
 import LeftSidebar from './component/layout/LeftSidebar';
 import RightSidebar from './component/layout/RightSidebar';
 import PhotoPost from './component/PhotoPost'; // Import the new PhotoPost component
+import ImageUpload from './component/ImageUpload';
+import PhotoUpload from './component/PhotoUpload';
+import UserInfo from './component/UserInfo';
+import User from './component/User';
 
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
@@ -28,10 +32,11 @@ const App = () => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      
+     
       if (response.ok) {
         const data = await response.json();
         setPosts(data);
+        //console.log(data);
       } else {
         console.error('Failed to fetch posts');
       }
@@ -62,7 +67,8 @@ const App = () => {
     }
   };
 
-  const handlePhotoPost = async (contentType, content) => {
+  const handlePhotoPost = async (content) => {
+    console.log(content);
     try {
       const response = await fetch(`${API_BASE_URL}/posts/photo`, {
         method: 'POST',
@@ -71,13 +77,13 @@ const App = () => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          content_type: contentType,
+         // content_type: contentType,
           content: content,
         }),
       });
-      console.log(response);
+      
       if (response.ok) {
-        console.log('Photo Post:', { content });
+       // console.log('Photo Post:', { content });
         setShowPhotoPost(false);
         fetchPosts();
       } else {
@@ -157,7 +163,7 @@ const App = () => {
         <main className="mainSection">
           {loggedIn ? (
             <div>
-              <h1 className="welcomeHeader">Welcome, User!</h1>
+              <h1 className="welcomeHeader">Welcome to , <User username={'moksud'}/></h1>
               <div className="logoutSection">
                 <button className="logoutButton" onClick={logout}>
                   Logout
@@ -182,7 +188,7 @@ const App = () => {
               </div>
 
               {/* Display the PhotoPost component when showPhotoPost is true */}
-              {showPhotoPost && <PhotoPost onPost={handlePhotoPost} accessToken={accessToken} />}
+              {showPhotoPost && <PhotoUpload onPost={handlePhotoPost} accessToken={accessToken} fetchPosts ={fetchPosts} />}
 
               <div className="postContainer">
                 <h2>Posts</h2>
@@ -195,6 +201,7 @@ const App = () => {
                     onShare={() => sharePost(post._id.$oid)}
                     accessToken={accessToken}
                     fetchPosts={fetchPosts}
+                    post_user={post.user_id.$oid}
                   />
                 ))}
               </div>

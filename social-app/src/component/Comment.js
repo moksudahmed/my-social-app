@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import UserInfo from './UserInfo';
 
-const Comment = ({ post_id, comment, accessToken, fetchPosts }) => {
+const Comment = ({ post_id, comment, accessToken, fetchPosts, userId }) => {
   const [reply, setReply] = useState('');
 
   const handleReplyChange = (e) => {
@@ -52,7 +53,7 @@ const Comment = ({ post_id, comment, accessToken, fetchPosts }) => {
 
   return (
     <li>
-      <p>{comment.text}</p>
+      <p><UserInfo userId={userId}/>{comment.text}</p>
       <div>
         {/* Like button and count */}
         <span>Reply</span>
@@ -70,7 +71,7 @@ const Comment = ({ post_id, comment, accessToken, fetchPosts }) => {
       <ul>
         {comment.replies &&
           comment.replies.map((reply, index) => (
-            <Comment key={index} comment={reply} accessToken={accessToken} fetchPosts={fetchPosts} />
+            <Comment key={index} comment={reply} accessToken={accessToken} fetchPosts={fetchPosts} userId={userId}/>
           ))}
       </ul>
     </li>

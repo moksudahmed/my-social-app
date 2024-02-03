@@ -1,6 +1,6 @@
 const AppHeader = () => (
     <header className="header">
-      <h1 className="logo">Your Logo</h1>
+      <h1 className="logo">SnapShare</h1>
     </header>
   );
   
