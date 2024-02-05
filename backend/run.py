@@ -11,6 +11,7 @@ from flask_uploads import UploadSet, configure_uploads, IMAGES
 import uuid  # Import the uuid module for generating unique identifiers
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from werkzeug.datastructures import  FileStorage
 
 
 app = Flask(__name__)
@@ -377,6 +378,141 @@ def share_post(post_id):
 
     except Exception as e:
         return jsonify({'message': f'Error during sharing post: {e}'}), 500
+
+
+@app.route('/connections/send_request', methods=['POST'])
+@jwt_required()
+def send_friend_request():
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+    friend_id = data.get('friend_id')
+
+    if not friend_id:
+        return jsonify({'message': 'Friend_id is required'}), 400
+
+    if str(current_user_id) == friend_id:
+        return jsonify({'message': 'Cannot send a friend request to yourself'}), 400
+    
+    user = db.users.find_one({'_id': ObjectId(current_user_id)})
+    friend = db.users.find_one({'_id': ObjectId(friend_id)})
+    #user = User.objects(id=current_user_id).first()
+    #friend = User.objects(id=friend_id).first()
+    
+    if not friend:
+        return jsonify({'message': 'Friend not found'}), 404
+
+    #existing_connection = Connection.objects(user_id=user, friend_id=friend).first()
+   
+    existing_connection =  db.connection.find_one({'user_id': user, 'friend_id': friend})
+    #Connection.objects(user_id=user, friend_id=friend).first()
+    
+    if existing_connection:
+        return jsonify({'message': 'Friend request already sent or accepted'}), 400
+    
+    new_connection = {
+            'user_id': ObjectId(user['_id']),
+            'friend_id': ObjectId(friend['_id']),
+            'status'   : "pending",
+            'send_at': datetime.utcnow()
+        }
+    #new_connection = Connection(user_id=user, friend_id=friend)
+    new_connection = db.connection.insert_one(new_connection).inserted_id
+    #db.connection.save()
+
+    return jsonify({'message': 'Friend request sent successfully'}), 201
+
+@app.route('/connections/accept_request', methods=['POST'])
+@jwt_required()
+def accept_friend_request():
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+    friend_id = data.get('friend_id')
+
+    if not friend_id:
+        return jsonify({'message': 'Friend_id is required'}), 400
+
+    #user = User.objects(id=current_user_id).first()
+    #friend = User.objects(id=friend_id).first()
+    user = db.users.find_one({'_id': ObjectId(current_user_id)})
+    friend = db.users.find_one({'_id': ObjectId(friend_id)})
+    #print(friend['_id'])
+    if not friend:
+        return jsonify({'message': 'Friend not found'}), 404
+
+    #connection = Connection.objects(user_id=friend, friend_id=user, status="pending").first()
+    connection =  db.connection.find_one({'user_id': user['_id'], 'friend_id': friend['_id'], 'status' : 'pending'})
+    print(connection)
+    if not connection:
+        return jsonify({'message': 'No pending friend request found'}), 404
+
+    #connection.status = "accepted"
+    db.connection.update_one({'_id': ObjectId(connection['_id'])},{ "$set": { "status": "accepted" } })
+    #connection.save()
+
+    #user.friends.append(friend)
+    #friend.friends.append(user)
+    #user.save()
+    #friend.save()
+
+    return jsonify({'message': 'Friend request accepted successfully'}), 200
+
+@app.route('/connections/get_friends', methods=['GET'])
+@jwt_required()
+def get_friends():
+    current_user_id = get_jwt_identity()
+
+    user = db.users.find_one({'_id': ObjectId(current_user_id)})
+    
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    # Assuming your user document has a 'friends' field
+    #friends = user.get('friends', [])
+    friends =list(db.connection.find())  
+    #print(friends)
+    friend_list=[]
+    for f in friends:        
+        _user = db.users.find_one({'_id': ObjectId(f['user_id'])})                    
+        friend = _user['firstname'] +' '+ _user['lastname']
+        friend_list.append(friend)
+        
+        #posts = list(db.posts.find({'user_id': current_user}))
+        #posts = list(db.posts.find({'user_id': ObjectId(current_user)}))
+        
+        # Use json_util to serialize ObjectId
+    
+    serialized_friend = json.loads(json_util.dumps(friend_list))
+    #print(serialized_friend)
+    return jsonify(serialized_friend), 200
+   #return jsonify({'friends': friends}), 200
+
+@app.route('/connections/get_suggested_friends', methods=['GET'])
+@jwt_required()
+def get_suggested_friends():
+    current_user_id = get_jwt_identity()
+
+    user = db.users.find_one({'_id': ObjectId(current_user_id)})
+    
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    # Assuming your user document has a 'friends' field
+    #friends = user.get('friends', [])
+    friends =list(db.users.find())  
+   
+    friend_list=[]
+    for f in friends:                
+       if user['_id'] != f.get('_id'):        
+            friend = f['firstname'] +' '+ f['lastname']
+            friend_list.append(friend)
+        
+    # Use json_util to serialize ObjectId
+    
+    serialized_friend = json.loads(json_util.dumps(friend_list))
+    
+    return jsonify(serialized_friend), 200
+    #return jsonify({'friends': friend_list}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)

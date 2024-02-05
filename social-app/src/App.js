@@ -8,8 +8,8 @@ import AppFooter from './component/layout/Footer'
 import AppHeader from './component/layout/Header';
 import LeftSidebar from './component/layout/LeftSidebar';
 import RightSidebar from './component/layout/RightSidebar';
-import PhotoPost from './component/PhotoPost'; // Import the new PhotoPost component
-import ImageUpload from './component/ImageUpload';
+//import PhotoPost from './component/PhotoPost'; // Import the new PhotoPost component
+//import ImageUpload from './component/ImageUpload';
 import PhotoUpload from './component/PhotoUpload';
 import UserInfo from './component/UserInfo';
 import User from './component/User';
@@ -159,7 +159,7 @@ const App = () => {
     <div className="appContainer">
       <AppHeader />
       <div className="mainContent">
-        <LeftSidebar />
+        <LeftSidebar accessToken={accessToken}/>
         <main className="mainSection">
           {loggedIn ? (
             <div>
@@ -230,9 +230,9 @@ const App = () => {
             </>
           )}
         </main>
-        <RightSidebar />
+        <RightSidebar accessToken={accessToken}/>
       </div>
-      <AppFooter />
+      <AppFooter accessToken={accessToken}/>
     </div>
   );
 };
