@@ -6,7 +6,7 @@ const UserProfile = ({ userId, accessToken }) => {
   const [friendList, setFriendList] = useState([]);
   const [suggestedUsers, setSuggestedUsers] = useState([]);
   const [friendRequestSent, setFriendRequestSent] = useState(false);
-  const [pendingRequest, setPendingRequest] = useState(false);
+  const [pendingRequest, setPendingRequest] = useState([]);
 
   const fetchUserData = async () => {
     try {
@@ -101,7 +101,7 @@ const UserProfile = ({ userId, accessToken }) => {
           <h2>Suggested Friends</h2>
           <ul>
             {suggestedUsers.map((user) => (
-              <li key={user._id}>
+              <li key={user.id}>
                 {user.name}
                 <button onClick={() => sendFriendRequest(user.friend_id)}>
                   Send Friend Request
@@ -112,7 +112,19 @@ const UserProfile = ({ userId, accessToken }) => {
         </div>
       )}
       {friendRequestSent && <p>Friend request sent!</p>}
-      
+      <div>
+          <h2>Friend Request</h2>
+          <ul>
+            {pendingRequest.map((user) => (
+              <li key={user.friend_id}>
+                {user.name}
+                <button onClick={() => sendFriendRequest(user.friend_id)}>
+                  Accept Request
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
     </div>
   );
 };

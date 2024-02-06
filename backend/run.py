@@ -474,22 +474,26 @@ def get_friends():
 def get_friend_request():
     current_user_id = get_jwt_identity()
     #data = request.get_json()
-    
-   
-
     #user = User.objects(id=current_user_id).first()
     #friend = User.objects(id=friend_id).first()
-    user = db.users.find_one({'_id': ObjectId(current_user_id)})
+   # user = db.users.find_one({'_id': ObjectId(current_user_id)})
     #friend = db.users.find_one({'_id': ObjectId(friend_id)})
     #print(friend['_id'])
-    
-
     #connection = Connection.objects(user_id=friend, friend_id=user, status="pending").first()
-    connections =  db.connection.find({'user_id': user['_id'], 'status' : 'pending'})
-    print(connections)
+    connections =  list(db.connection.find({'user_id': ObjectId(current_user_id), 'status' : 'pending'}))
+   
     if not connections:
         return jsonify({'message': 'No pending friend request found'}), 404
 
+    friend_list=[]
+    for f in connections:    
+       user = db.users.find_one({'_id': ObjectId(f.get('friend_id'))})   
+       if user:        
+            friend = {
+                'name' : user['firstname'] +' '+ user['lastname'],
+                'friend_id' : user.get('_id')
+            }
+            friend_list.append(friend)
     #connection.status = "accepted"
     #db.connection.update_one({'_id': ObjectId(connection['_id'])},{ "$set": { "status": "accepted" } })
     #connection.save()
@@ -498,7 +502,7 @@ def get_friend_request():
     #friend.friends.append(user)
     #user.save()
     #friend.save()
-    serialized_friend = json.loads(json_util.dumps(connections))
+    serialized_friend = json.loads(json_util.dumps(friend_list))
     #print(serialized_friend)
     return jsonify(serialized_friend), 200
     
