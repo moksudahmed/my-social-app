@@ -5,9 +5,9 @@ posts_list = [{'text':'Hello World', 'user_id':1,'scope':'public'},
               {'text':'Good Evening', 'user_id':1,'scope':'public'},
               {'text':'This is awesome', 'user_id':2,'scope':'public'}]
 
-connections = [{'user_id':1, 'friend_id':[3, 4, 2]},
-               {'user_id':3, 'friend_id':[1, 4]},
-               {'user_id':4, 'friend_id':[2]}]
+connections = [{'user_id':1, 'friend_id':[3, 4, 2], 'blocked_id':[4]},
+               {'user_id':3, 'friend_id':[1, 4], 'blocked_id':[]},
+               {'user_id':4, 'friend_id':[2, 1, 3], 'blocked_id':[]}]
 
 friends_list = [{'user_id':1,'name':"Moksud"},
                 {'user_id':2,'name':"Fuad"},
@@ -38,7 +38,42 @@ def get_friend_list_by_id(user_id):
     except Exception as e:
         return e    
 def get_posts(posts, connections, friends_list, user_id):    
-    #try:
+    try:
+        # Find user's name
+        username = next((friend['name'] for friend in friends_list if friend['user_id'] == user_id), None)
+        if username:
+            print(username)
+            # Find user's friends
+            user_connections = next((connection for connection in connections if connection['user_id'] == user_id), None)
+            
+            if user_connections:
+                user_friends = user_connections['friend_id']
+                user_blocked = user_connections['blocked_id']                
+            else:
+                user_friends = []
+                user_blocked = []
+
+            # Add user to the list of friends if not blocked
+            user_friends.append(user_id) if user_id not in user_blocked else None
+            print(user_blocked)
+            # Find posts of the user and their friends (including public posts if user is the author and not blocked)
+            user_and_friends_posts = [post for post in posts if post['user_id'] in user_friends 
+                                       and (post['scope'] == 'public' or post['user_id'] == user_id)]
+            if user_and_friends_posts:
+                print("User {} and their friends' posts:".format(user_id))
+                for post in user_and_friends_posts:
+                    print(post['text'])
+            else:
+                print("No posts found for user {} and their friends.".format(user_id))
+        else:
+            print("User with ID {} not found.".format(user_id))
+    except Exception as e:
+        return e
+
+# Test the function
+
+def get_posts2(posts, connections, friends_list, user_id):    
+    try:
         # Find user's name
         username = next((friend['name'] for friend in friends_list if friend['user_id'] == user_id), None)
         if username:
@@ -60,8 +95,8 @@ def get_posts(posts, connections, friends_list, user_id):
                 print("No posts found for user {} and their friends.".format(user_id))
         else:
             print("User with ID {} not found.".format(user_id))
-    #except Exception as e:
-     #       return e
+    except Exception as e:
+           return e
 def get_friend_list(connections, friends_list, user_id):
     try:
         # Find user's friends
@@ -164,7 +199,7 @@ def accept_friend_request(requester_id, friend_id):
     else:
         return False, "Friend request not found or already accepted."
 
-def unfriend(requester_id, friend_id):
+def unfriend2(requester_id, friend_id):
     # Find the friend request to accept
     request_to_accept = next((request for request in friend_request if request['user_id'] == requester_id and request['friend_id'] == friend_id), None)
     connection1 = next((connection for connection in connections if connection['user_id'] == requester_id), None)
@@ -199,25 +234,53 @@ def unfriend(requester_id, friend_id):
     else:
         return False, "Friend request not found or already accepted."
 
+def get_index_by_user_id(connections, user_id):
+    for index, connection in enumerate(connections):
+        if connection['user_id'] == user_id:
+            return index
+    return -1  # Return -1 if user_id is not found in the connections list
 
-def unfriend2(user_id1, user_id2):
-    # Find the connection entries for both users
-    connection1 = next((connection for connection in connections if connection['user_id'] == user_id1), None)
-    connection2 = next((connection for connection in connections if connection['user_id'] == user_id2), None)
-    print(connection1)
-    print(connection2)
-    if connection1 and connection2:
-        # Remove user_id2 from user_id1's friend list
-        if user_id2 in connection1['friend_id']:
-            connection1['friend_id'].remove(user_id2)
+def unfriend(user_id1, user_id2):
+    try:
+        # Find the connection entries for both users
+        index1 = get_index_by_user_id(connections, user_id1)
+        index2 = get_index_by_user_id(connections, user_id2)
         
-        # Remove user_id1 from user_id2's friend list
-        if user_id1 in connection2['friend_id']:
-            connection2['friend_id'].remove(user_id1)
-        
-        return True, "Successfully unfriended."
-    else:
-        return False, "One or both users are not found in the connections list."
+        if index1 != -1 and index2 != -1:
+            connection1 = connections[index1]
+            connection2 = connections[index2]
+            
+            # Remove user_id2 from user_id1's friend list
+            if user_id2 in connection1['friend_id']:
+                connection1['friend_id'].remove(user_id2)
+            
+            # Remove user_id1 from user_id2's friend list
+            if user_id1 in connection2['friend_id']:
+                connection2['friend_id'].remove(user_id1)
+            
+            return True, "Successfully unfriended."
+        else:
+            return False, "One or both users are not found in the connections list."
+    except Exception as e:
+        return False, str(e)
+
+def blocked(user_id1, user_id2):
+    try:
+        # Find the connection entries for both users
+        index1 = get_index_by_user_id(connections, user_id1)
+                
+        if index1 != -1:
+            connection1 = connections[index1]
+            
+            # Remove user_id2 from user_id1's friend list
+            if user_id2 in connection1['friend_id']:               
+                connection1['blocked_id'].insert(index1, user_id2)           
+            
+            return True, "Successfully blocked."
+        else:
+            return False, "One or both users are not found in the connections list."
+    except Exception as e:
+        return False, str(e)
 
 def init():
     while True:
@@ -253,11 +316,17 @@ def init():
             print(friend_request)
         elif choice =='9':
             id = input("Enter Friend ID:")
-            friend_id = int(id)
-            unfriend(id, friend_id)
+            friend_id = int(id)            
+            unfriend(user_id, friend_id)
+            print(connections)
             #print(accept_friend_request(user_id, friend_id))
+        elif choice =='10':
+            id = input("Enter Friend ID:")
+            friend_id = int(id)            
+            blocked(user_id, friend_id)
+            print(connections)    
+            
         else : break
  
 init()
-        
         # Test the function
