@@ -36,7 +36,7 @@ const App = () => {
       if (response.ok) {
         const data = await response.json();
         setPosts(data);
-        //console.log(data);
+        console.log(data);
       } else {
         console.error('Failed to fetch posts');
       }

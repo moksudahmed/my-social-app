@@ -1,16 +1,111 @@
-print("Social App")
+from flask import Flask, render_template, request, jsonify, send_from_directory
+from pymongo import MongoClient
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from bson import ObjectId
+from flask_cors import CORS
+from bson import json_util
+import json
+from flask_restful import Api, Resource
+import os
+from flask_uploads import UploadSet, configure_uploads, IMAGES
+import uuid  # Import the uuid module for generating unique identifiers
+from werkzeug.utils import secure_filename
+from datetime import datetime
+from werkzeug.datastructures import  FileStorage
 
 
-def create_post(posts_list, user_id):
-    post_text = input("Enter your post:")    
-    scope = input("Enter your post scope:")
-    new_post ={
-        'text': post_text,
-        'user_id': int(user_id),
-        'scope' : scope
-    }     
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
+
+app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
+app.config['UPLOADED_IMAGES_DEST'] = 'uploads'  # Folder to store uploaded images
+
+images = UploadSet('images', IMAGES)
+configure_uploads(app, images)
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+# Set up MongoDB connection
+try:
+    client = MongoClient('mongodb+srv://kmrahman11:sylhet3100@cluster0.qwcawco.mongodb.net/?retryWrites=true&w=majority')
+    db = client['your_database_name']
+except Exception as e:
+    print(f"Error connecting to MongoDB: {e}")
+
+jwt = JWTManager(app)
+
+
+@app.route('/register', methods=['POST'])
+def register():
+ 
+    try:
+     
+        data = request.get_json()
+       
+        existing_user = db.users.find_one({'username': data['username']})
+        print(data)
+        if existing_user:
+            return jsonify({'message': 'Username already exists'}), 400
+
+        new_user = {
+            'username': data['username'],
+            'password': data['password'],
+            'email': data['email'],
+            'firstname': data['firstname'],
+            'lastname': data['lastname']            
+        }
+        print(new_user)
+        user_id = db.users.insert_one(new_user).inserted_id
+        return jsonify({'message': 'User registered successfully', 'user_id': str(user_id)}), 201
+
+    except Exception as e:
+        return jsonify({'message': f'Error during registration: {e}'}), 500
+
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        data = request.get_json()
+        user = db.users.find_one({'username': data['username'], 'password': data['password']})
+        
+        if user:
+            access_token = create_access_token(identity=str(user['_id']))            
+            return jsonify(access_token=access_token), 200
+        else:
+            return jsonify({'message': 'Invalid credentials'}), 401
+
+    except Exception as e:
+        return jsonify({'message': f'Error during login: {e}'}), 500
+
+posts_list = []
+
+connections = [{'user_id':1, 'friend_id':[3, 4, 2], 'blocked_id':[4]},
+                {'user_id':3, 'friend_id':[1, 4], 'blocked_id':[]},
+                {'user_id':4, 'friend_id':[2, 1, 3], 'blocked_id':[]}]
+
+friends_list = [{'user_id':1,'name':"Moksud"},
+                    {'user_id':2,'name':"Fuad"},
+                    {'user_id':3,'name':"Azad"},
+                    {'user_id':4,'name':"Ashik"},
+                    {'user_id':5,'name':"Affan"}]
+
+friend_request =[{'user_id':2, 'friend_id':4, 'status': 'pending'},
+                    {'user_id':2, 'friend_id':3, 'status': 'pending'}]
+
+def create_post(posts_list, post):
+   
+    new_post = {
+            'user_id': post['user_id'], #ObjectId(current_user),
+            'content_type': post['content_type'],
+            'content': post['content'],
+            'scope' : post['scope'],
+            'likes': [],
+            'comments': [],
+            'shares': [],
+            'created_at': datetime.utcnow()
+        }
+      
     posts_list.append(new_post)
-
+    print(posts_list)
+    return 1
 def get_friend_list_by_id(connections, user_id):
     try:
         newlist = [conn for conn in connections if conn['user_id']==user_id][0]
@@ -51,8 +146,9 @@ def get_posts(posts, connections, friends_list, user_id):
             
             if user_and_friends_posts:
                 print("User {} and their friends' posts:".format(user_id))
-                for post in user_and_friends_posts:
-                    print(next((friend['name'] for friend in friends_list if friend['user_id'] == post['user_id']), None) +' ['+ post['text'] +']')
+                #for post in user_and_friends_posts:
+                #    print(next((friend['name'] for friend in friends_list if friend['user_id'] == post['user_id']), None) +' ['+ post['text'] +']')
+                return user_and_friends_posts
             else:
                 print("No posts found for user {} and their friends.".format(user_id))
         else:
@@ -286,5 +382,87 @@ def init():
             blocked(connections, user_id, friend_id)
             print(connections)                
         else : break 
-init()
+#init()
         # Test the function
+
+
+@app.route('/posts', methods=['GET'])
+#@jwt_required()
+def get_all_posts():
+    try:
+        #current_user = get_jwt_identity()
+        # Assuming you have a 'posts' collection in your MongoDB
+        #posts = list(db.posts.find())
+        #posts =list(db.posts.find().sort({"created_at": -1}))  
+        user_id =1
+        posts = get_posts(posts_list, connections, friends_list, user_id)
+        #posts = list(db.posts.find({'user_id': current_user}))
+        #posts = list(db.posts.find({'user_id': ObjectId(current_user)}))
+        
+        # Use json_util to serialize ObjectId
+        serialized_posts = json.loads(json_util.dumps(posts))
+
+        return jsonify(serialized_posts), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/post', methods=['POST'])
+#@jwt_required()
+def post():
+    try:
+        #current_user = get_jwt_identity()
+        data = request.get_json()
+        print(data)
+        content_type = data.get('content_type', 'text')  # Default to text if not provided
+        content = data.get('content')
+        scope = data.get('scope')
+        user_id = data.get('user_id')
+
+        if not content:
+            return jsonify({'message': 'Content is required'}), 400
+
+        new_post = {
+            'user_id': int(user_id), #ObjectId(current_user),
+            'content_type': content_type,
+            'content': content,
+            'scope' : scope,
+            'likes': [],
+            'comments': [],
+            'shares': [],
+            'created_at': datetime.utcnow()
+        }
+        post_id = create_post(posts_list, new_post)
+        #post_id = db.posts.insert_one(new_post).inserted_id
+        return jsonify({'message': 'Post created successfully', 'post_id': str(post_id)}), 201
+
+    except Exception as e:
+        return jsonify({'message': f'Error during post creation: {e}'}), 500
+
+@app.route('/connections/get_friends', methods=['GET'])
+#@jwt_required()
+def get_friends():
+    user_id = 1
+    friend_list = get_friend_list(connections, friends_list, user_id)
+    
+    serialized_friend = json.loads(json_util.dumps(friend_list))
+    #print(serialized_friend)
+    return jsonify(serialized_friend), 200
+   #return jsonify({'friends': friends}), 200
+
+@app.route('/get_user_by_username/<username>')
+def get_user_by_username(username):
+    try:
+        #user_id = request.get_json()
+        
+        user = db.users.find_one({'username': username})
+        name = user['firstname'] + ' '+ user['lastname']
+        if user:                        
+            return jsonify({'name': name}), 200
+        else:
+            return jsonify({'message': 'Invalid credentials'}), 401
+
+    except Exception as e:
+        return jsonify({'message': f'Error loading: {e}'}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
