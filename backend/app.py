@@ -461,6 +461,7 @@ def accept_friend_request():
     #friend = User.objects(id=friend_id).first()
     user = db.users.find_one({'_id': ObjectId(current_user_id)})
     friend = db.users.find_one({'_id': ObjectId(friend_id)})
+    
     #print(friend['_id'])
     if not friend:
         return jsonify({'message': 'Friend not found'}), 404

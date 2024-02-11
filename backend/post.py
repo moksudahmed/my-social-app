@@ -291,7 +291,7 @@ def init():
           print(app.get_friend_list(2))
         else: break
 
-#app = Flask(__name__)
+app = Flask(__name__)
 social_app = SocialApp()  # Create an instance of SocialApp
 
 

@@ -251,24 +251,38 @@ def post_reply():
     except Exception as e:
         return jsonify({'message': f'Error during reply submission: {e}'}), 500
 
-
 @app.route('/posts', methods=['GET'])
 @jwt_required()
 def get_all_posts():
     try:
-        current_user = get_jwt_identity()
-        # Assuming you have a 'posts' collection in your MongoDB
-        #posts = list(db.posts.find())
-        posts =list(db.posts.find().sort({"created_at": -1}))  
-        #posts = list(db.posts.find({'user_id': current_user}))
-        #posts = list(db.posts.find({'user_id': ObjectId(current_user)}))
-        
-        # Use json_util to serialize ObjectId
+        current_user_id = get_jwt_identity()
+
+        # Find all existing connections where the current user is either the user_id or friend_id and the status is 'accepted'
+        existing_connections = db.connection.find({
+            '$or': [
+                {'user_id': ObjectId(current_user_id), 'status': 'accepted'},
+                {'friend_id': ObjectId(current_user_id), 'status': 'accepted'}
+            ]
+        })
+
+        # Extract the user_ids of the current user and their friends
+        user_ids = [ObjectId(current_user_id)]
+        for connection in existing_connections:
+            if connection['user_id'] != ObjectId(current_user_id):
+                user_ids.append(connection['user_id'])
+            if connection['friend_id'] != ObjectId(current_user_id):
+                user_ids.append(connection['friend_id'])
+
+        # Query the database to fetch all posts of the current user and their friends
+        posts = list(db.posts.find({'user_id': {'$in': user_ids}}).sort("created_at", -1))
+
+        # Serialize the posts
         serialized_posts = json.loads(json_util.dumps(posts))
 
         return jsonify(serialized_posts), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
     
 @app.route('/posts/like', methods=['POST'])
 @jwt_required()
@@ -400,7 +414,6 @@ def send_friend_request():
     return jsonify({'message': 'Friend request sent successfully'}), 201
 
 @app.route('/connections/accept_request', methods=['POST'])
-
 @jwt_required()
 def accept_friend_request():
     current_user_id = get_jwt_identity()
@@ -410,42 +423,26 @@ def accept_friend_request():
     if not friend_id:
         return jsonify({'message': 'Friend_id is required'}), 400
 
-    #user = User.objects(id=current_user_id).first()
-    #friend = User.objects(id=friend_id).first()
     user = db.users.find_one({'_id': ObjectId(current_user_id)})
     friend = db.users.find_one({'_id': ObjectId(friend_id)})
     
     if not friend:
         return jsonify({'message': 'Friend not found'}), 404
-
-    #connection = Connection.objects(user_id=friend, friend_id=user, status="pending").first()
-    connection =  db.connection.find_one({'user_id': user['_id'], 'friend_id': friend['_id'], 'status' : 'pending'})
-    print(connection)
-    existing_connection1 = db.connection.find_one({'user_id': ObjectId(user['_id']), 'friend_id': ObjectId(friend['_id']), 'status' : 'pending'})
-    existing_connection2 = db.connection.find_one({'user_id': ObjectId(friend['_id']), 'friend_id': ObjectId(user['_id']), 'status' : 'pending'})
-    print(existing_connection1)
-    print(existing_connection2)
-    if not existing_connection1 or existing_connection2:
+  
+    existing_connection = db.connection.find_one({
+        '$or': [
+            {'user_id': ObjectId(current_user_id), 'friend_id': ObjectId(friend_id), 'status': 'pending'},
+            {'user_id': ObjectId(friend_id), 'friend_id': ObjectId(current_user_id), 'status': 'pending'}
+        ]
+    })
+    
+    if existing_connection:
+        db.connection.update_one({'_id': ObjectId(existing_connection['_id'])}, {"$set": {"status": "accepted"}})
+        return jsonify({'message': 'Friend request accepted successfully'}), 200
+    else:
         return jsonify({'message': 'Friend request already sent or accepted'}), 400
 
-    
-    #connection.status = "accepted"
-    if existing_connection1:
-        print("Test1")
-        db.connection.update_one({'_id': ObjectId(existing_connection1['_id'])},{ "$set": { "status": "accepted" } })
-    if existing_connection2:
-        print("Test2")
-        db.connection.update_one({'_id': ObjectId(existing_connection2['_id'])},{ "$set": { "status": "accepted" } })
-    #connection.save()
-
-    #user.friends.append(friend)
-    #friend.friends.append(user)
-    #user.save()
-    #friend.save()
-
-    return jsonify({'message': 'Friend request accepted successfully'}), 200
-
-@app.route('/connections/get_friends', methods=['GET'])
+@app.route('/connections/get_friend_list', methods=['GET'])
 @jwt_required()
 def get_friends():
     current_user_id = get_jwt_identity()
@@ -455,65 +452,49 @@ def get_friends():
     if not user:
         return jsonify({'message': 'User not found'}), 404
 
-    # Assuming your user document has a 'friends' field
-    #friends = user.get('friends', [])
-    friends =list(db.connection.find())  
-    #print(friends)
-    friend_list=[]
-    for f in friends:        
-        _user = db.users.find_one({'_id': ObjectId(f['user_id'])})                    
-        friend = _user['firstname'] +' '+ _user['lastname']
-        friend_list.append(friend)
+    existing_connections = db.connection.find({
+        '$or': [
+            {'user_id': ObjectId(current_user_id), 'status': 'accepted'},
+            {'friend_id': ObjectId(current_user_id), 'status': 'accepted'}
+        ]
+    })
+
+    friend_list = []
+    for connection in existing_connections:
+        # Determine the friend's ID
+        friend_id = connection['friend_id'] if connection['user_id'] == ObjectId(current_user_id) else connection['user_id']
         
-        #posts = list(db.posts.find({'user_id': current_user}))
-        #posts = list(db.posts.find({'user_id': ObjectId(current_user)}))
-        
-        # Use json_util to serialize ObjectId
-    
-    serialized_friend = json.loads(json_util.dumps(friend_list))
-    #print(serialized_friend)
-    return jsonify(serialized_friend), 200
-   #return jsonify({'friends': friends}), 200
+        # Retrieve friend's information
+        friend = db.users.find_one({'_id': friend_id})
+        if friend:
+            friend_name = friend['firstname'] + ' ' + friend['lastname']
+            friend_list.append(friend_name)
+
+    return jsonify({'friends': friend_list}), 200
 
 @app.route('/connections/get_friend_request', methods=['GET'])
 @jwt_required()
 def get_friend_request():
     current_user_id = get_jwt_identity()
-    data = request.get_json()
-    
-    #user = User.objects(id=current_user_id).first()
-    #friend = User.objects(id=friend_id).first()
-   # user = db.users.find_one({'_id': ObjectId(current_user_id)})
-    #friend = db.users.find_one({'_id': ObjectId(friend_id)})
-    #print(friend['_id'])
-    #connection = Connection.objects(user_id=friend, friend_id=user, status="pending").first()
-    connections =  list(db.connection.find({'user_id': ObjectId(current_user_id), 'status' : 'pending'}))
-   
+
+    # Fetch pending friend requests of the current user from the database
+    connections = db.connection.find({'user_id': ObjectId(current_user_id), 'status': 'pending'})
+
     if not connections:
         return jsonify({'message': 'No pending friend request found'}), 404
 
-    friend_list=[]
-    for f in connections:    
-       user = db.users.find_one({'_id': ObjectId(f.get('friend_id'))})   
-       if user:        
-            friend = {
-                'name' : user['firstname'] +' '+ user['lastname'],
-                'friend_id' : user.get('_id')
+    friend_list = []
+    for connection in connections:
+        # Retrieve friend's information
+        friend = db.users.find_one({'_id': connection['friend_id']})
+        if friend:
+            friend_data = {
+                'name': friend['firstname'] + ' ' + friend['lastname'],
+                'friend_id': str(friend['_id'])  # Convert ObjectId to string
             }
-            friend_list.append(friend)
-    #connection.status = "accepted"
-    #db.connection.update_one({'_id': ObjectId(connection['_id'])},{ "$set": { "status": "accepted" } })
-    #connection.save()
+            friend_list.append(friend_data)
 
-    #user.friends.append(friend)
-    #friend.friends.append(user)
-    #user.save()
-    #friend.save()
-    serialized_friend = json.loads(json_util.dumps(friend_list))
-    #print(serialized_friend)
-    return jsonify(serialized_friend), 200
-    
-    #return jsonify({'message': 'Friend request accepted successfully'}), 200
+    return jsonify(friend_list), 200
 
 @app.route('/connections/get_suggested_friends', methods=['GET'])
 @jwt_required()
