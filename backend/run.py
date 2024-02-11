@@ -367,8 +367,8 @@ def send_friend_request():
     
     current_user_id = get_jwt_identity()
     data = request.get_json()
-    friend_id = data.get('friend_id', {}).get('$oid')        
-
+    friend_id = data.get('friend_id')
+    
     if not friend_id:
         return jsonify({'message': 'Friend_id is required'}), 400
 
@@ -377,21 +377,16 @@ def send_friend_request():
     
     user = db.users.find_one({'_id': ObjectId(current_user_id)})
     friend = db.users.find_one({'_id': ObjectId(friend_id)})
-    #user = User.objects(id=current_user_id).first()
-    #friend = User.objects(id=friend_id).first()
-    #print(user)
-    #print(friend)
+
     if not friend:
         return jsonify({'message': 'Friend not found'}), 404
 
-    #existing_connection = Connection.objects(user_id=user, friend_id=friend).first()
-   
-    existing_connection =  db.connection.find_one({'user_id': user, 'friend_id': friend})
-    #Connection.objects(user_id=user, friend_id=friend).first()
-    
-    if existing_connection:
+    existing_connection1 = db.connection.find_one({'user_id': ObjectId(user['_id']), 'friend_id': ObjectId(friend['_id'])})
+    existing_connection2 = db.connection.find_one({'user_id': ObjectId(friend['_id']), 'friend_id': ObjectId(user['_id'])})
+ 
+    if existing_connection1 or existing_connection2:
         return jsonify({'message': 'Friend request already sent or accepted'}), 400
-    
+
     new_connection = {
             'user_id': ObjectId(user['_id']),
             'friend_id': ObjectId(friend['_id']),
@@ -405,6 +400,7 @@ def send_friend_request():
     return jsonify({'message': 'Friend request sent successfully'}), 201
 
 @app.route('/connections/accept_request', methods=['POST'])
+
 @jwt_required()
 def accept_friend_request():
     current_user_id = get_jwt_identity()
@@ -418,18 +414,28 @@ def accept_friend_request():
     #friend = User.objects(id=friend_id).first()
     user = db.users.find_one({'_id': ObjectId(current_user_id)})
     friend = db.users.find_one({'_id': ObjectId(friend_id)})
-    #print(friend['_id'])
+    
     if not friend:
         return jsonify({'message': 'Friend not found'}), 404
 
     #connection = Connection.objects(user_id=friend, friend_id=user, status="pending").first()
     connection =  db.connection.find_one({'user_id': user['_id'], 'friend_id': friend['_id'], 'status' : 'pending'})
     print(connection)
-    if not connection:
-        return jsonify({'message': 'No pending friend request found'}), 404
+    existing_connection1 = db.connection.find_one({'user_id': ObjectId(user['_id']), 'friend_id': ObjectId(friend['_id']), 'status' : 'pending'})
+    existing_connection2 = db.connection.find_one({'user_id': ObjectId(friend['_id']), 'friend_id': ObjectId(user['_id']), 'status' : 'pending'})
+    print(existing_connection1)
+    print(existing_connection2)
+    if not existing_connection1 or existing_connection2:
+        return jsonify({'message': 'Friend request already sent or accepted'}), 400
 
+    
     #connection.status = "accepted"
-    db.connection.update_one({'_id': ObjectId(connection['_id'])},{ "$set": { "status": "accepted" } })
+    if existing_connection1:
+        print("Test1")
+        db.connection.update_one({'_id': ObjectId(existing_connection1['_id'])},{ "$set": { "status": "accepted" } })
+    if existing_connection2:
+        print("Test2")
+        db.connection.update_one({'_id': ObjectId(existing_connection2['_id'])},{ "$set": { "status": "accepted" } })
     #connection.save()
 
     #user.friends.append(friend)
@@ -473,7 +479,8 @@ def get_friends():
 @jwt_required()
 def get_friend_request():
     current_user_id = get_jwt_identity()
-    #data = request.get_json()
+    data = request.get_json()
+    
     #user = User.objects(id=current_user_id).first()
     #friend = User.objects(id=friend_id).first()
    # user = db.users.find_one({'_id': ObjectId(current_user_id)})
