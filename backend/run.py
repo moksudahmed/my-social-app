@@ -405,6 +405,7 @@ def send_friend_request():
             'requester_id': ObjectId(user['_id']),
             'friend_id': ObjectId(friend['_id']),
             'status'   : "pending",
+            'blocked_by':'',
             'send_at': datetime.utcnow()
         }
     #new_connection = Connection(user_id=user, friend_id=friend)
@@ -419,7 +420,7 @@ def accept_friend_request():
     current_user_id = get_jwt_identity()
     data = request.get_json()
     friend_id = data.get('friend_id')
-
+    
     if not friend_id:
         return jsonify({'message': 'Friend_id is required'}), 400
 
@@ -436,6 +437,9 @@ def accept_friend_request():
         ]
     })
     
+    if existing_connection['requester_id'] == ObjectId(current_user_id):
+         print("Requester")
+         return jsonify({'message': 'Requester himself not allow to accept'}), 200
     if existing_connection:
         db.connection.update_one({'_id': ObjectId(existing_connection['_id'])}, {"$set": {"status": "accepted"}})
         return jsonify({'message': 'Friend request accepted successfully'}), 200
@@ -555,6 +559,35 @@ def unfriend():
 
     return jsonify({'message': 'Friend not found'}), 404
 
+@app.route('/connections/blocked', methods=['POST'])
+@jwt_required()
+def blocked():
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+    friend_id = data.get('friend_id')
+
+    if not friend_id:
+        return jsonify({'message': 'Friend_id is required'}), 400
+
+    if str(current_user_id) == friend_id:
+        return jsonify({'message': 'Cannot unfriend yourself'}), 400
+
+    # Find the existing connection between the current user and the friend
+    existing_connection = db.connection.find_one({
+        '$or': [
+            {'requester_id': ObjectId(current_user_id), 'friend_id': ObjectId(friend_id)},
+            {'requester_id': ObjectId(friend_id), 'friend_id': ObjectId(current_user_id)}
+        ]
+    })
+
+    if existing_connection:
+        # Delete the existing connection
+        #result = db.connection.delete_one({'_id': ObjectId(existing_connection['_id'])})
+        db.connection.update_one({'_id': ObjectId(existing_connection['_id'])}, {"$set": {"status": "blocked", "blocked_by": ObjectId(current_user_id)}})
+       
+        return jsonify({'message': 'Successfully blocked'}), 200
+
+    return jsonify({'message': 'Friend not found'}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)

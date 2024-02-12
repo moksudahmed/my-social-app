@@ -6,7 +6,7 @@ const RightSidebar = ({accessToken}) => {
   return(
     <aside className="rightSidebar">
       <h1>Right Sidebar</h1>
-      <FriendRequest userId = {userId} accessToken={accessToken} />
+      <SuggestedFriendList accessToken={accessToken} />
     </aside>
   );
 };

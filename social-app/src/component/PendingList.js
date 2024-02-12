@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const SuggestedFriendList = ({ accessToken }) => {
+const PendingList = ({ accessToken }) => {
   const [friends, setFriends] = useState([]);
   const [friendRequestSent, setFriendRequestSent] = useState(false);
 
   useEffect(() => {
     const fetchFriends = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:5000/connections/get_suggested_friends', {
+        const response = await axios.get('http://127.0.0.1:5000/connections/get_friend_request', {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -22,10 +22,10 @@ const SuggestedFriendList = ({ accessToken }) => {
 
     fetchFriends();
   }, [accessToken]);
-  const sendFriendRequest = async (friendId) => {
+  const acceptFriendRequest = async (friendId) => {
     console.log(friendId);
     try {
-      const response = await fetch(`http://127.0.0.1:5000/connections/send_request`, {
+      const response = await fetch(`http://127.0.0.1:5000/connections/accept_request`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,13 +50,13 @@ const SuggestedFriendList = ({ accessToken }) => {
   };
   return (
     <div>
-      <h2>Friends Suggestions</h2>
+      <h2>Friends Pending</h2>
       <ul>
       {friends.map((user) => (
               <li key={user.id}>
                 {user.name}
-                <button onClick={() => sendFriendRequest(user.friend_id.$oid)}>
-                  Send Friend Request
+                <button onClick={() => acceptFriendRequest(user.friend_id)}>
+                  Accept Request
                 </button>
               </li>
             ))}
@@ -66,4 +66,4 @@ const SuggestedFriendList = ({ accessToken }) => {
   );
 };
 
-export default SuggestedFriendList;
+export default PendingList;
