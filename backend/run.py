@@ -260,7 +260,7 @@ def get_all_posts():
         # Find all existing connections where the current user is either the user_id or friend_id and the status is 'accepted'
         existing_connections = db.connection.find({
             '$or': [
-                {'user_id': ObjectId(current_user_id), 'status': 'accepted'},
+                {'requester_id': ObjectId(current_user_id), 'status': 'accepted'},
                 {'friend_id': ObjectId(current_user_id), 'status': 'accepted'}
             ]
         })
@@ -268,8 +268,8 @@ def get_all_posts():
         # Extract the user_ids of the current user and their friends
         user_ids = [ObjectId(current_user_id)]
         for connection in existing_connections:
-            if connection['user_id'] != ObjectId(current_user_id):
-                user_ids.append(connection['user_id'])
+            if connection['requester_id'] != ObjectId(current_user_id):
+                user_ids.append(connection['requester_id'])
             if connection['friend_id'] != ObjectId(current_user_id):
                 user_ids.append(connection['friend_id'])
 
@@ -395,14 +395,14 @@ def send_friend_request():
     if not friend:
         return jsonify({'message': 'Friend not found'}), 404
 
-    existing_connection1 = db.connection.find_one({'user_id': ObjectId(user['_id']), 'friend_id': ObjectId(friend['_id'])})
-    existing_connection2 = db.connection.find_one({'user_id': ObjectId(friend['_id']), 'friend_id': ObjectId(user['_id'])})
+    existing_connection1 = db.connection.find_one({'requester_id': ObjectId(user['_id']), 'friend_id': ObjectId(friend['_id'])})
+    existing_connection2 = db.connection.find_one({'requester_id': ObjectId(friend['_id']), 'friend_id': ObjectId(user['_id'])})
  
     if existing_connection1 or existing_connection2:
         return jsonify({'message': 'Friend request already sent or accepted'}), 400
 
     new_connection = {
-            'user_id': ObjectId(user['_id']),
+            'requester_id': ObjectId(user['_id']),
             'friend_id': ObjectId(friend['_id']),
             'status'   : "pending",
             'send_at': datetime.utcnow()
@@ -431,8 +431,8 @@ def accept_friend_request():
   
     existing_connection = db.connection.find_one({
         '$or': [
-            {'user_id': ObjectId(current_user_id), 'friend_id': ObjectId(friend_id), 'status': 'pending'},
-            {'user_id': ObjectId(friend_id), 'friend_id': ObjectId(current_user_id), 'status': 'pending'}
+            {'requester_id': ObjectId(current_user_id), 'friend_id': ObjectId(friend_id), 'status': 'pending'},
+            {'requester_id': ObjectId(friend_id), 'friend_id': ObjectId(current_user_id), 'status': 'pending'}
         ]
     })
     
@@ -462,7 +462,7 @@ def get_friends():
     friend_list = []
     for connection in existing_connections:
         # Determine the friend's ID
-        friend_id = connection['friend_id'] if connection['user_id'] == ObjectId(current_user_id) else connection['user_id']
+        friend_id = connection['friend_id'] if connection['requester_id'] == ObjectId(current_user_id) else connection['requester_id']
         
         # Retrieve friend's information
         friend = db.users.find_one({'_id': friend_id})
@@ -478,7 +478,7 @@ def get_friend_request():
     current_user_id = get_jwt_identity()
 
     # Fetch pending friend requests of the current user from the database
-    connections = db.connection.find({'user_id': ObjectId(current_user_id), 'status': 'pending'})
+    connections = db.connection.find({'requester_id': ObjectId(current_user_id), 'status': 'pending'})
 
     if not connections:
         return jsonify({'message': 'No pending friend request found'}), 404
@@ -526,6 +526,34 @@ def get_suggested_friends():
     
     return jsonify(serialized_friend), 200
     #return jsonify({'friends': friend_list}), 200
+@app.route('/connections/unfriend', methods=['POST'])
+@jwt_required()
+def unfriend():
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+    friend_id = data.get('friend_id')
+
+    if not friend_id:
+        return jsonify({'message': 'Friend_id is required'}), 400
+
+    if str(current_user_id) == friend_id:
+        return jsonify({'message': 'Cannot unfriend yourself'}), 400
+
+    # Find the existing connection between the current user and the friend
+    existing_connection = db.connection.find_one({
+        '$or': [
+            {'requester_id': ObjectId(current_user_id), 'friend_id': ObjectId(friend_id)},
+            {'requester_id': ObjectId(friend_id), 'friend_id': ObjectId(current_user_id)}
+        ]
+    })
+
+    if existing_connection:
+        # Delete the existing connection
+        result = db.connection.delete_one({'_id': ObjectId(existing_connection['_id'])})
+        if result.deleted_count > 0:
+            return jsonify({'message': 'Successfully unfriended'}), 200
+
+    return jsonify({'message': 'Friend not found'}), 404
 
 
 if __name__ == '__main__':
