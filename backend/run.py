@@ -500,30 +500,49 @@ def get_friend_request():
 
     return jsonify(friend_list), 200
 
+def check_request(id, connections):
+        for conn in connections:
+            if conn['requester_id'] == ObjectId(id):
+                print("Requester", ObjectId(id))
+                return True
+            if conn['friend_id'] == ObjectId(id):
+                print("Friend", ObjectId(id))
+                return True
+        return False
+
 @app.route('/connections/get_suggested_friends', methods=['GET'])
 @jwt_required()
 def get_suggested_friends():
     current_user_id = get_jwt_identity()
 
     user = db.users.find_one({'_id': ObjectId(current_user_id)})
+    connections = db.connection.find({
+        '$or': [
+            {'requester_id': ObjectId(current_user_id)},
+            {'friend_id': ObjectId(current_user_id)}
+        ]
+    })
     
     if not user:
         return jsonify({'message': 'User not found'}), 404
-
+    
     # Assuming your user document has a 'friends' field
     #friends = user.get('friends', [])
     friends =list(db.users.find())  
-   
+    
     friend_list=[]
-    for f in friends:                
-       if user['_id'] != f.get('_id'):        
-            friend = {
-                'name' : f['firstname'] +' '+ f['lastname'],
-                'friend_id' : f.get('_id')
-
-            }
-            friend_list.append(friend)
-        
+    
+    for f in friends:        
+        for conn in connections:            
+            if conn['requester_id'] != ObjectId(f.get('_id')): 
+                if conn['friend_id'] != ObjectId(f.get('_id')):
+                    friend = {
+                        'name' : f['firstname'] +' '+ f['lastname'],
+                        'friend_id' : f.get('_id')
+                    }
+                    friend_list.append(friend)
+    
+    print(friend_list)
     # Use json_util to serialize ObjectId
     
     serialized_friend = json.loads(json_util.dumps(friend_list))
