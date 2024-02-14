@@ -1,3 +1,4 @@
+import FriendList from "../FriendList";
 import UserProfile from "../UserProfile";
 
 const AppFooter = ({accessToken}) => {
@@ -5,7 +6,7 @@ const AppFooter = ({accessToken}) => {
     return(
     <footer className="footer">
       <h1>Footer</h1>
-      <UserProfile userId = {userId} accessToken={accessToken} />
+      
     </footer>
     )
   };

@@ -1,3 +1,4 @@
+import FriendList from "../FriendList";
 import FriendRequest from "../FriendRequest";
 import SuggestedFriendList from "../SuggestedFriendList";
 
@@ -6,6 +7,7 @@ const RightSidebar = ({accessToken}) => {
   return(
     <aside className="rightSidebar">
       <h1>Right Sidebar</h1>
+      <FriendList accessToken={accessToken} />
       <SuggestedFriendList accessToken={accessToken} />
     </aside>
   );

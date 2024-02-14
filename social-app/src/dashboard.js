@@ -13,11 +13,10 @@ import RightSidebar from './component/layout/RightSidebar';
 import PhotoUpload from './component/PhotoUpload';
 import UserInfo from './component/UserInfo';
 import User from './component/User';
-import Dashboard from './dashboard';
 
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
-const App = () => {
+const Dashboard = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [accessToken, setAccessToken] = useState('');
   const [posts, setPosts] = useState([]);
@@ -157,10 +156,85 @@ const App = () => {
   }, [loggedIn, posts, fetchPosts]);
 
   return (
-    <div>
-      <Dashboard />
-        </div>
+    <div className="appContainer">
+      <AppHeader />
+      <div className="mainContent">
+        <LeftSidebar accessToken={accessToken}/>
+        <main className="mainSection">
+          {loggedIn ? (
+            <div>
+              <h1 className="welcomeHeader">Welcome to , <User username={'moksud'}/></h1>
+              <div className="logoutSection">
+                <button className="logoutButton" onClick={logout}>
+                  Logout
+                </button>
+              </div>
+              <div className="newPostSection">
+                <input
+                  type="text"
+                  value={newPostContent}
+                  onChange={(e) => setNewPostContent(e.target.value)}
+                  placeholder="What's on your mind?"
+                  className="postInput"
+                />
+                <button className="postButton" onClick={createPost}>
+                  Post
+                </button>
+
+                {/* New button for posting photos */}
+                <button className="postButton" onClick={() => setShowPhotoPost(true)}>
+                  Post Photo
+                </button>
+              </div>
+
+              {/* Display the PhotoPost component when showPhotoPost is true */}
+              {showPhotoPost && <PhotoUpload onPost={handlePhotoPost} accessToken={accessToken} fetchPosts ={fetchPosts} />}
+
+              <div className="postContainer">
+                <h2>Posts</h2>
+                {posts.map((post) => (
+                  <Post
+                    key={post._id.$oid}
+                    post={post}
+                    onLike={() => likePost(post._id.$oid)}
+                    onComment={() => commentPost(post._id.$oid)}
+                    onShare={() => sharePost(post._id.$oid)}
+                    accessToken={accessToken}
+                    fetchPosts={fetchPosts}
+                    post_user={post.user_id.$oid}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <>
+              {showRegistration ? (
+                <Registration setLoggedIn={setLoggedIn} setAccessToken={setAccessToken} setShowRegistration={setShowRegistration} />
+              ) : (
+                <>
+                  {showLogin && (
+                    <Login setLoggedIn={setLoggedIn} setAccessToken={setAccessToken} setShowLogin={setShowLogin} />
+                  )}
+                  <div className="loginSection">
+                    <button className="loginButton" onClick={() => setShowLogin(true)}>
+                      Login
+                    </button>
+                  </div>
+                  <div className="registrationLink">
+                    <button className="registrationLinkButton" onClick={() => setShowRegistration(true)}>
+                      Register
+                    </button>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </main>
+        <RightSidebar accessToken={accessToken}/>
+      </div>
+      <AppFooter accessToken={accessToken}/>
+    </div>
   );
 };
 
-export default App;
+export default Dashboard;
