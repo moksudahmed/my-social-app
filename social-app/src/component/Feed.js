@@ -16,7 +16,7 @@ import User from './component/User';
 
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
-const Dashboard = () => {
+const Feed = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [accessToken, setAccessToken] = useState('');
   const [posts, setPosts] = useState([]);
@@ -237,4 +237,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Feed;

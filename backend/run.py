@@ -106,6 +106,20 @@ def get_user_by_username(username):
     except Exception as e:
         return jsonify({'message': f'Error loading: {e}'}), 500
 
+@app.route('/user/get_username', methods=['GET'])
+@jwt_required()
+def get_username():
+    current_user_id = get_jwt_identity()
+
+    user = db.users.find_one({'_id': ObjectId(current_user_id)})
+    print(user) 
+    
+    name = user['firstname'] + ' '+ user['lastname']
+    if user:                        
+        return jsonify({'name': name}), 200
+    else:
+        return jsonify({'message': 'Invalid credentials'}), 401
+
 @app.route('/post', methods=['POST'])
 @jwt_required()
 def post():
@@ -275,7 +289,7 @@ def get_all_posts():
 
         # Query the database to fetch all posts of the current user and their friends
         posts = list(db.posts.find({'user_id': {'$in': user_ids}}).sort("created_at", -1))
-
+       # print(posts)
         # Serialize the posts
         serialized_posts = json.loads(json_util.dumps(posts))
 

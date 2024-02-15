@@ -13,7 +13,7 @@ import RightSidebar from './component/layout/RightSidebar';
 import PhotoUpload from './component/PhotoUpload';
 import UserInfo from './component/UserInfo';
 import User from './component/User';
-import Dashboard from './dashboard';
+import axios from 'axios';
 
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
@@ -25,7 +25,7 @@ const App = () => {
   const [showRegistration, setShowRegistration] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showPhotoPost, setShowPhotoPost] = useState(false);
-
+  const [username, setUserName]= useState()
   const fetchPosts = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/posts`, {
@@ -43,6 +43,21 @@ const App = () => {
       }
     } catch (error) {
       console.error('Error during fetching posts:', error);
+    }
+  };
+
+  const fetchUser = async () => {
+    
+    try {
+      const response = await axios.get('http://127.0.0.1:5000/user/get_username', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      console.log(response.data.name)
+      setUserName(response.data.name);
+    } catch (error) {
+      console.error('Error fetching friends:', error);
     }
   };
 
@@ -150,16 +165,92 @@ const App = () => {
     const fetchData = async () => {
       if (loggedIn && posts.length === 0) {
         await fetchPosts();
+        await fetchUser();
       }
     };
 
-    fetchData();
+    fetchData();    
   }, [loggedIn, posts, fetchPosts]);
 
   return (
-    <div>
-      <Dashboard />
-        </div>
+    <div className="appContainer">
+      <AppHeader />
+      <div className="mainContent">
+        <LeftSidebar accessToken={accessToken} loggedIn={loggedIn}/>
+        <main className="mainSection">
+          {loggedIn ? (
+            <div>
+              <h1 className="welcomeHeader">Welcome to , {username}<User username={username}/></h1>
+              <div className="logoutSection">
+                <button className="logoutButton" onClick={logout}>
+                  Logout
+                </button>
+              </div>
+              <div className="newPostSection">
+                <input
+                  type="text"
+                  value={newPostContent}
+                  onChange={(e) => setNewPostContent(e.target.value)}
+                  placeholder="What's on your mind?"
+                  className="postInput"
+                />
+                <button className="postButton" onClick={createPost}>
+                  Post
+                </button>
+
+                {/* New button for posting photos */}
+                <button className="postButton" onClick={() => setShowPhotoPost(true)}>
+                  Post Photo
+                </button>
+              </div>
+
+              {/* Display the PhotoPost component when showPhotoPost is true */}
+              {showPhotoPost && <PhotoUpload onPost={handlePhotoPost} accessToken={accessToken} fetchPosts ={fetchPosts} />}
+
+              <div className="postContainer">
+                <h2>Posts</h2>
+                {posts.map((post) => (
+                  <Post
+                    key={post._id.$oid}
+                    post={post}
+                    onLike={() => likePost(post._id.$oid)}
+                    onComment={() => commentPost(post._id.$oid)}
+                    onShare={() => sharePost(post._id.$oid)}
+                    accessToken={accessToken}
+                    fetchPosts={fetchPosts}
+                    post_user={post.user_id.$oid}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <>
+              {showRegistration ? (
+                <Registration setLoggedIn={setLoggedIn} setAccessToken={setAccessToken} setShowRegistration={setShowRegistration} />
+              ) : (
+                <>
+                  {showLogin && (
+                    <Login setLoggedIn={setLoggedIn} setAccessToken={setAccessToken} setShowLogin={setShowLogin} />
+                  )}
+                  <div className="loginSection">
+                    <button className="loginButton" onClick={() => setShowLogin(true)}>
+                      Login
+                    </button>
+                  </div>
+                  <div className="registrationLink">
+                    <button className="registrationLinkButton" onClick={() => setShowRegistration(true)}>
+                      Register
+                    </button>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </main>
+        <RightSidebar accessToken={accessToken} loggedIn={loggedIn}/>
+      </div>
+      <AppFooter accessToken={accessToken}/>
+    </div>
   );
 };
 
