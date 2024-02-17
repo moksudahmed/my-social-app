@@ -1,30 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
-import './module.css';
-import Post from './component/Post';
-import Registration from './component/Registration';
-import Login from './component/Login';
-import AppFooter from './component/layout/Footer'
-import AppHeader from './component/layout/Header';
-import LeftSidebar from './component/layout/LeftSidebar';
-import RightSidebar from './component/layout/RightSidebar';
+import '../App.css';
+import '../module.css';
+import Post from '../component/Post';
 //import PhotoPost from './component/PhotoPost'; // Import the new PhotoPost component
 //import ImageUpload from './component/ImageUpload';
-import PhotoUpload from './component/PhotoUpload';
-import UserInfo from './component/UserInfo';
-import User from './component/User';
+import PhotoUpload from '../component/PhotoUpload';
+import axios from 'axios';
 
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
-const Feed = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [accessToken, setAccessToken] = useState('');
+const Feed = ({accessToken, loggedIn, username, logout}) => {
   const [posts, setPosts] = useState([]);
   const [newPostContent, setNewPostContent] = useState('');
-  const [showRegistration, setShowRegistration] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
   const [showPhotoPost, setShowPhotoPost] = useState(false);
-
+  
   const fetchPosts = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/posts`, {
@@ -44,6 +33,7 @@ const Feed = () => {
       console.error('Error during fetching posts:', error);
     }
   };
+
 
   const createPost = async () => {
     try {
@@ -140,11 +130,7 @@ const Feed = () => {
     }
   };
 
-  const logout = () => {
-    setLoggedIn(false);
-    setAccessToken('');
-  };
-
+ 
   useEffect(() => {
     const fetchData = async () => {
       if (loggedIn && posts.length === 0) {
@@ -152,18 +138,12 @@ const Feed = () => {
       }
     };
 
-    fetchData();
+    fetchData();    
   }, [loggedIn, posts, fetchPosts]);
 
   return (
-    <div className="appContainer">
-      <AppHeader />
-      <div className="mainContent">
-        <LeftSidebar accessToken={accessToken}/>
-        <main className="mainSection">
-          {loggedIn ? (
             <div>
-              <h1 className="welcomeHeader">Welcome to , <User username={'moksud'}/></h1>
+              <h1 className="welcomeHeader">Welcome to , {username}</h1>
               <div className="logoutSection">
                 <button className="logoutButton" onClick={logout}>
                   Logout
@@ -206,35 +186,7 @@ const Feed = () => {
                 ))}
               </div>
             </div>
-          ) : (
-            <>
-              {showRegistration ? (
-                <Registration setLoggedIn={setLoggedIn} setAccessToken={setAccessToken} setShowRegistration={setShowRegistration} />
-              ) : (
-                <>
-                  {showLogin && (
-                    <Login setLoggedIn={setLoggedIn} setAccessToken={setAccessToken} setShowLogin={setShowLogin} />
-                  )}
-                  <div className="loginSection">
-                    <button className="loginButton" onClick={() => setShowLogin(true)}>
-                      Login
-                    </button>
-                  </div>
-                  <div className="registrationLink">
-                    <button className="registrationLinkButton" onClick={() => setShowRegistration(true)}>
-                      Register
-                    </button>
-                  </div>
-                </>
-              )}
-            </>
-          )}
-        </main>
-        <RightSidebar accessToken={accessToken}/>
-      </div>
-      <AppFooter accessToken={accessToken}/>
-    </div>
-  );
+            );
 };
 
 export default Feed;

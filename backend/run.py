@@ -92,14 +92,28 @@ def get_user(user_id):
         return jsonify({'message': f'Error loading: {e}'}), 500
 
 @app.route('/get_user_by_username/<username>')
+@jwt_required()
 def get_user_by_username(username):
     try:
-        #user_id = request.get_json()
         
-        user = db.users.find_one({'username': username})
-        name = user['firstname'] + ' '+ user['lastname']
-        if user:                        
-            return jsonify({'name': name}), 200
+        #user_id = request.get_json()    
+        users = db.users.find({
+            '$or': [
+                {'firstname': username},
+                {'lastname': username}
+            ]
+        })
+    
+        friend_list = []
+        if users:
+            for user in users:
+                user_data = {
+                    'name': user['firstname'] + ' ' + user['lastname'],
+                    'user_id': str(ObjectId(user['_id']))  # Convert ObjectId to string
+                }
+                friend_list.append(user_data)
+        if friend_list:                        
+            return jsonify({'users': friend_list}), 200
         else:
             return jsonify({'message': 'Invalid credentials'}), 401
 
