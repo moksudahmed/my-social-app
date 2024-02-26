@@ -123,10 +123,12 @@ def get_user_by_username(username):
 @app.route('/user/get_username', methods=['GET'])
 @jwt_required()
 def get_username():
+    
     current_user_id = get_jwt_identity()
 
     user = db.users.find_one({'_id': ObjectId(current_user_id)})
-    print(user) 
+    
+    #print(user) 
     
     name = user['firstname'] + ' '+ user['lastname']
     if user:                        

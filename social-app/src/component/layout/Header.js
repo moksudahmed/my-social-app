@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import SearchResults from './SearchResults';
 
-const AppHeader = ({ accessToken, username, onLogout, onSearch }) => {
+const AppHeader = ({ accessToken, username, logout, onSearch }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
@@ -11,9 +11,7 @@ const AppHeader = ({ accessToken, username, onLogout, onSearch }) => {
   };
 
   const handleSearchSubmit = async () => {
-    
     try {
-      
       const response = await axios.get(`http://127.0.0.1:5000/get_user_by_username/${searchTerm}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -21,9 +19,6 @@ const AppHeader = ({ accessToken, username, onLogout, onSearch }) => {
       });
       const searchData = response.data;
       setSearchResults(searchData.users);
-      const userData = response.data;
-      console.log(userData)
-      //onSearch(userData);
     } catch (error) {
       console.error('Error searching user:', error);
     }
@@ -45,13 +40,12 @@ const AppHeader = ({ accessToken, username, onLogout, onSearch }) => {
       <div className="user-profile">
         <div className="user-info">
           <div className="user-avatar">
-            {/* Add profile photo here */}
+            {/* Placeholder for profile photo */}
+            <img src="placeholder.jpg" alt="Profile" />
           </div>
-          <div className="user-name">
-            {username}
-          </div>
+          <div className="user-name">{username}</div>
         </div>
-        <button className="logout-button" onClick={onLogout}>
+        <button className="logout-button" onClick={logout}>
           Logout
         </button>
       </div>

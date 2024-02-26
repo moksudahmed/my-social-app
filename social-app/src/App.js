@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './App.css';
 import './module.css';
-import LandingPage from './component/LandingPage';
-
+import HomePage from './component/pages/HomePage';
+//import AppLogo from './components/AppLogo'; // Import your AppLogo component
 
 const App = () => {
-  
   return (
-    <div>
-      <LandingPage />
+    <div className="app-container">
+      
+      <HomePage />
     </div>
   );
 };
