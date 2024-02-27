@@ -1,6 +1,7 @@
+// AppHeader.js
 import React, { useState } from 'react';
 import axios from 'axios';
-import SearchResults from '../pages/SearchResults';
+import './AppHeader.css';
 
 const AppHeader = ({ accessToken, username, logout, onSearch }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,16 +28,15 @@ const AppHeader = ({ accessToken, username, logout, onSearch }) => {
   return (
     <header className="header">
       <div className="logo">SnapShare</div>
-      {/*<div className="search-bar">
+      <div className="search-container">
         <input
           type="text"
           placeholder="Search users"
           value={searchTerm}
           onChange={handleSearchChange}
         />
-        <button onClick={handleSearchSubmit}>Search</button>
-        <SearchResults results={searchResults} />
-  </div>*/}
+        <button className="search-button" onClick={handleSearchSubmit}>Search</button>
+      </div>
       <div className="user-profile">
         <div className="user-info">
           <div className="user-avatar">

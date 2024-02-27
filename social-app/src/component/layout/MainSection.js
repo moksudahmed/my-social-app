@@ -4,8 +4,8 @@ import Friends from '../../component/Friends/Friends';
 import Notifications from '../../component/notifications/Notifications';
 import Videos from '../../component/videopost/Videos';
 import './MainSection.css';
-import SearchBar from '../pages/SearchBar'; // Import the SearchBar component
-import SearchResults from '../pages/SearchResults';
+import SearchBar from '../../pages/SearchBar'; // Import the SearchBar component
+import SearchResults from '../../pages/SearchResults';
 import axios from 'axios';
 
 const MainSection = ({ accessToken, loggedIn, username, logout }) => {
@@ -37,7 +37,7 @@ const MainSection = ({ accessToken, loggedIn, username, logout }) => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'feed':
-        return <Feed accessToken={accessToken} loggedIn={loggedIn} username={username} logout={logout} />;
+        return <Feed accessToken={accessToken} loggedIn={loggedIn}/>;
       case 'friends':
         return <Friends accessToken={accessToken} loggedIn={loggedIn} username={username} />;
       case 'notifications':

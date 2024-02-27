@@ -1,16 +1,16 @@
 import React from 'react';
 import { PropTypes } from 'prop-types'; // Import PropTypes for type checking
-import '../../App.css';
-import '../../module.css';
-import Registration from '../../component/Registration';
-import Login from '../../component/Login';
-import AppFooter from '../../component/layout/Footer';
-import AppHeader from '../../component/layout/Header';
-import LeftSidebar from '../../component/layout/LeftSidebar';
-import RightSidebar from '../../component/layout/RightSidebar';
+import '../App.css';
+import '../module.css';
+import Registration from '../component/Registration';
+import Login from '../component/Login';
+import AppFooter from '../component/layout/Footer';
+import AppHeader from '../component/layout/Header';
+import LeftSidebar from '../component/layout/LeftSidebar';
+import RightSidebar from '../component/layout/RightSidebar';
 import axios from 'axios';
-import Feed from '../../component/Feed';
-import MainSection from '../layout/MainSection';
+import Feed from '../component/Feed';
+import MainSection from '../component/layout/MainSection';
 
 const API_BASE_URL = 'https://127.0.0.1:5000'; // Use HTTPS for secure API calls
 

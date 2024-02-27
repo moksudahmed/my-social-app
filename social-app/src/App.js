@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import './module.css';
-import HomePage from './component/pages/HomePage';
+import HomePage from './pages/HomePage';
 //import AppLogo from './components/AppLogo'; // Import your AppLogo component
 
 const App = () => {

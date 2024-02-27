@@ -9,7 +9,7 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
-const Feed = ({accessToken, loggedIn, username, logout}) => {
+const Feed = ({accessToken, loggedIn}) => {
   const [posts, setPosts] = useState([]);
   const [newPostContent, setNewPostContent] = useState('');
   const [showPhotoPost, setShowPhotoPost] = useState(false);
@@ -143,12 +143,7 @@ const Feed = ({accessToken, loggedIn, username, logout}) => {
 
   return (
             <div>
-              <h1 className="welcomeHeader">Welcome to , {username}</h1>
-              <div className="logoutSection">
-                <button className="logoutButton" onClick={logout}>
-                  Logout
-                </button>
-              </div>
+              
               <div className="newPostSection">
                 <input
                   type="text"
