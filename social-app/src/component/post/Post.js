@@ -1,9 +1,9 @@
 // Post.js
 import React, { useState, useEffect } from 'react';
-import Comment from './Comment';
-import PhotoPost from './PhotoPost';
-import ImageViewer from './ImageViewer';
-import UserInfo from './UserInfo';
+import Comment from '../Comment';
+//import PhotoPost from './PhotoPost';
+import ImageViewer from '../ImageViewer';
+import UserInfo from '../user/UserInfo';
 import './post.css';
 
 const Post = ({ post, onLike, onComment, onShare, accessToken, fetchPosts, post_user }) => {
@@ -89,10 +89,10 @@ const Post = ({ post, onLike, onComment, onShare, accessToken, fetchPosts, post_
       </div>
       <div className="post-buttons">
         <button onClick={onComment}>Comment</button>
-        <button onClick={() => setShowPhotoPost(true)}>Post Photo</button>
+        {/*<button onClick={() => setShowPhotoPost(true)}>Post Photo</button>*/}
       </div>
 
-      {showPhotoPost && <PhotoPost onPost={handlePhotoPost} />}
+     {/* {showPhotoPost && <PhotoPost onPost={handlePhotoPost} />}*/}
 
       <div className="post-comments">
         <form onSubmit={handleCommentSubmit}>

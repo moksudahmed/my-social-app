@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import UserInfo from './UserInfo';
+import UserInfo from './user/UserInfo';
 
 const Comment = ({ post_id, comment, accessToken, fetchPosts, userId }) => {
   const [reply, setReply] = useState('');
