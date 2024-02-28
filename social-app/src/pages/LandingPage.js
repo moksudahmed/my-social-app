@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PropTypes } from 'prop-types'; // Import PropTypes for type checking
 import '../App.css';
 import '../module.css';
@@ -15,17 +15,17 @@ import MainSection from '../component/layout/MainSection';
 const API_BASE_URL = 'https://127.0.0.1:5000'; // Use HTTPS for secure API calls
 
 const LandingPage = ({ accessToken, loggedIn, username, logout }) => {
-  const onSearch = () => {
-    // Implement search functionality
-  };
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearch, setIsSearch] = useState(false);
   
   return (
     <div>
-      <AppHeader accessToken={accessToken} username={username} logout={logout} onSearch={onSearch} />      
+      <AppHeader accessToken={accessToken} username={username} logout={logout} searchTerm={searchTerm} setSearchTerm = {setSearchTerm} setSearchResults={setSearchResults} setIsSearch={setIsSearch}/>      
       <div className="mainContent">
         <LeftSidebar accessToken={accessToken} loggedIn={loggedIn} />
         <main className="mainSection">
-          <MainSection accessToken={accessToken} loggedIn={loggedIn} username={username} logout={logout} />
+          <MainSection accessToken={accessToken} loggedIn={loggedIn} username={username} searchResults={searchResults} setIsSearch={setIsSearch} isSearch={isSearch}/>
         </main>
         <RightSidebar accessToken={accessToken} loggedIn={loggedIn} />
       </div>

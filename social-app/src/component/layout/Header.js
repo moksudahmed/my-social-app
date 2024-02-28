@@ -3,15 +3,14 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './AppHeader.css';
 
-const AppHeader = ({ accessToken, username, logout, onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-
+const AppHeader = ({ accessToken, username, logout, searchTerm, setSearchTerm, setSearchResults, setIsSearch }) => {
+  
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
   const handleSearchSubmit = async () => {
+    
     try {
       const response = await axios.get(`http://127.0.0.1:5000/get_user_by_username/${searchTerm}`, {
         headers: {
@@ -20,6 +19,7 @@ const AppHeader = ({ accessToken, username, logout, onSearch }) => {
       });
       const searchData = response.data;
       setSearchResults(searchData.users);
+      setIsSearch(true);      
     } catch (error) {
       console.error('Error searching user:', error);
     }
