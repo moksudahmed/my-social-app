@@ -1,7 +1,7 @@
 // Login.js
 
 import React, { useState } from 'react';
-import styles from '../module.css';
+import styles from './module.css';
 
 const API_BASE_URL = 'http://127.0.0.1:5000';
 

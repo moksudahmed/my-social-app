@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import '../App.css';
 import LandingPage from '../pages/LandingPage'; // Import LandingPage component
-import Registration from '../component/Registration'; // Import Registration component
-import Login from '../component/Login'; // Import Login component
+import Registration from '../component/auth/Registration'; // Import Registration component
+import Login from '../component/auth/Login'; // Import Login component
 import axios from 'axios';
 
 const HomePage = () => {

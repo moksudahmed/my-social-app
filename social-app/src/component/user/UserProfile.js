@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const UserProfile = ({ userId, accessToken }) => {
+const UserProfile = ({ accessToken, username }) => {
   const [userData, setUserData] = useState({});
   const [friendList, setFriendList] = useState([]);
   const [suggestedUsers, setSuggestedUsers] = useState([]);
@@ -10,7 +10,7 @@ const UserProfile = ({ userId, accessToken }) => {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get(`http://127.0.0.1:5000/get_user/${userId}`, {
+      const response = await axios.get(`http://127.0.0.1:5000/get_user_by_username/${username}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },

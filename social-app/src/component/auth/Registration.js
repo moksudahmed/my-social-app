@@ -1,7 +1,7 @@
 // Registration.js
 
 import React, { useState } from 'react';
-import styles from '../module.css';
+import styles from './registration.css';
 
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
@@ -20,7 +20,7 @@ const Registration = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password, email, firstname,lastname }),
+        body: JSON.stringify({ username, password, email, firstname, lastname }),
       });
 
       if (response.ok) {
@@ -65,28 +65,31 @@ const Registration = () => {
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="firstname">First Name</label>
-          <input
-            type="text"
-            id="firstname"
-            value={firstname}
-            onChange={(e) => setFirstName(e.target.value)}
-            placeholder="Enter your First name"
-            className={styles.inputField}
-          />
+        <div className={styles.nameGroup}>
+          <div className={styles.formGroup}>
+            <label htmlFor="firstname">First Name</label>
+            <input
+              type="text"
+              id="firstname"
+              value={firstname}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="Enter your First name"
+              className={styles.inputField}
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="lastname">Last Name</label>
+            <input
+              type="text"
+              id="lastname"
+              value={lastname}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Enter your Last name"
+              className={styles.inputField}
+            />
+          </div>
         </div>
-        <div className={styles.formGroup}>
-          <label htmlFor="lastname">Last Name</label>
-          <input
-            type="text"
-            id="lastname"
-            value={lastname}
-            onChange={(e) => setLastName(e.target.value)}
-            placeholder="Enter your Last name"
-            className={styles.inputField}
-          />
-        </div>        
+
         <div className={styles.formGroup}>
           <label htmlFor="email">Email</label>
           <input
