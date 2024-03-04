@@ -28,6 +28,7 @@ APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 try:
     client = MongoClient('mongodb+srv://kmrahman11:sylhet3100@cluster0.qwcawco.mongodb.net/?retryWrites=true&w=majority')
     db = client['your_database_name']
+    print("Connection Successfully Establish")
 except Exception as e:
     print(f"Error connecting to MongoDB: {e}")
 
@@ -62,10 +63,10 @@ def register():
 
 @app.route('/login', methods=['POST'])
 def login():
-    try:
-        data = request.get_json()
+    try:        
+        data = request.get_json()       
         user = db.users.find_one({'username': data['username'], 'password': data['password']})
-        
+        print(user)
         if user:
             access_token = create_access_token(identity=str(user['_id']))            
             return jsonify(access_token=access_token), 200
