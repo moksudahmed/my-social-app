@@ -37,6 +37,15 @@ const Registration = () => {
     }
   };
 
+  const handleCancel = () => {
+    // Add logic to cancel registration
+    setUsername('');
+    setPassword('');
+    setFirstName('');
+    setLastName('');
+    setEmail('');
+  };
+
   return (
     <div className={styles.registrationContainer}>
       <h1 className={styles.registrationHeader}>Create Your Account</h1>
@@ -102,9 +111,14 @@ const Registration = () => {
           />
         </div>
 
-        <button className={styles.registerButton} onClick={register}>
-          Register
-        </button>
+        <div className={styles.buttonGroup}>
+          <button className={styles.registerButton} onClick={register}>
+            Register
+          </button>
+          <button className={styles.cancelButton} onClick={handleCancel}>
+            Cancel
+          </button>
+        </div>
 
         {registrationStatus && (
           <div className={styles.registrationStatus}>{registrationStatus}</div>

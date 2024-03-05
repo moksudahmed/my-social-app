@@ -3,6 +3,8 @@ import axios from 'axios';
 import './AppHeader.css';
 import image from '../../images/placeholder.jpg';
 import UserProfile from '../user/UserProfile'; // Import the UserProfile component
+import { Navigate } from "react-router-dom";
+import UserProfilePage from '../../pages/UserProfilePage';
 
 const AppHeader = ({ accessToken, username, logout, searchTerm, setSearchTerm, setSearchResults, setIsSearch }) => {
   const [showUserProfile, setShowUserProfile] = useState(false);
@@ -27,7 +29,9 @@ const AppHeader = ({ accessToken, username, logout, searchTerm, setSearchTerm, s
   };
 
   const handleUserProfileClick = () => {
+    console.log("Clicked");
     setShowUserProfile(true);
+    
   };
 
   return (
@@ -54,7 +58,7 @@ const AppHeader = ({ accessToken, username, logout, searchTerm, setSearchTerm, s
           Logout
         </button>
       </div>
-      {showUserProfile && <UserProfile accessToken={accessToken} username={username}/>} {/* Render the UserProfile component if showUserProfile is true */}
+      {showUserProfile && <Navigate to="/user-profile" replace={true} />} {/* Render the UserProfile component if showUserProfile is true */}
     </header>
   );
 };

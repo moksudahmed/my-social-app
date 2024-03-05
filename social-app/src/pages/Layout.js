@@ -1,46 +1,28 @@
-import React, { useState } from 'react';
-import { PropTypes } from 'prop-types'; // Import PropTypes for type checking
-import '../App.css';
-import '../module.css';
+import React from 'react';
+import { Outlet, Link } from 'react-router-dom';
+import './layout.css'; // Import your CSS file for styling
 
-import AppFooter from '../component/layout/Footer';
-import AppHeader from '../component/layout/Header';
-import LeftSidebar from '../component/layout/LeftSidebar';
-import RightSidebar from '../component/layout/RightSidebar';
-import axios from 'axios';
-import Feed from '../component/Feed';
-import MainSection from '../component/layout/MainSection';
-import Registration from '../component/auth/Registration';
-import Login from '../component/auth/Login';
-
-const API_BASE_URL = 'https://127.0.0.1:5000'; // Use HTTPS for secure API calls
-
-const Layout = ({ accessToken, loggedIn, username, logout }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearch, setIsSearch] = useState(false);
-  
+const Layout = () => {
   return (
-    <div>
-      <AppHeader accessToken={accessToken} username={username} logout={logout} searchTerm={searchTerm} setSearchTerm = {setSearchTerm} setSearchResults={setSearchResults} setIsSearch={setIsSearch}/>      
-      <div className="mainContent">
-        <LeftSidebar accessToken={accessToken} loggedIn={loggedIn} />
-        <main className="mainSection">
-          <MainSection accessToken={accessToken} loggedIn={loggedIn} username={username} searchResults={searchResults} setIsSearch={setIsSearch} isSearch={isSearch}/>
-        </main>
-        <RightSidebar accessToken={accessToken} loggedIn={loggedIn} />
+    <div className="container">
+      <nav className="navbar">
+        <ul className="nav-list">
+          <li className="nav-item">
+            <Link to="/" className="nav-link">Home</Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/about-us" className="nav-link">About Us</Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/help" className="nav-link">Help</Link>
+          </li>
+        </ul>
+      </nav>
+      <div className="content">
+        <Outlet />
       </div>
-      <AppFooter accessToken={accessToken} />
     </div>
   );
-};
-
-// Add prop type validation
-LandingPage.propTypes = {
-  accessToken: PropTypes.string.isRequired,
-  loggedIn: PropTypes.bool.isRequired,
-  username: PropTypes.string,
-  logout: PropTypes.func.isRequired,
 };
 
 export default Layout;

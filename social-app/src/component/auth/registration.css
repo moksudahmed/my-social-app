@@ -1,57 +1,63 @@
-/* module.css */
+/* registration.css */
 
 .registrationContainer {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .registrationHeader {
-    font-size: 24px;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .registrationForm {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .formGroup {
-    margin-bottom: 15px;
-  }
-  
-  .inputField {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .nameGroup {
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .registerButton {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 10px 20px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .registerButton:hover {
-    background-color: #0056b3;
-  }
-  
-  .registrationStatus {
-    margin-top: 10px;
-    text-align: center;
-    color: red;
-  }
-  
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.registrationHeader {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.registrationForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.inputField {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.nameGroup {
+  display: flex;
+  justify-content: space-between;
+}
+
+.registerButton,
+.cancelButton {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.registerButton:hover,
+.cancelButton:hover {
+  background-color: #0056b3;
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: space-between;
+}
+
+.registrationStatus {
+  margin-top: 10px;
+  text-align: center;
+  color: red;
+}
