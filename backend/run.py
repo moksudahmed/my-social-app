@@ -337,6 +337,26 @@ def like_post():
     except Exception as e:
         return jsonify({'message': f'Error during liking post: {e}'}), 500
 
+@app.route('/posts-by-user', methods=['GET'])
+@jwt_required()
+def get_all_posts_by_user():
+    try:
+        current_user_id = get_jwt_identity()
+
+        # Extract the user_ids of the current user and their friends
+        user_ids = [ObjectId(current_user_id)]
+        
+        # Query the database to fetch all posts of the current user and their friends
+        #posts = list(db.posts.find({'user_id': {'$in': user_ids}}).sort("created_at", -1))
+        posts = list(db.posts.find( {'user_id': user_ids } ).sort("created_at", -1))
+        
+        print(posts)
+        # Serialize the posts
+        serialized_posts = json.loads(json_util.dumps(posts))
+
+        return jsonify(serialized_posts), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 def like_post_working_copy():
     try:

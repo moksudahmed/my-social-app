@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './AppHeader.css';
 import image from '../../images/placeholder.jpg';
-import UserProfile from '../user/UserProfile'; // Import the UserProfile component
-import { Navigate } from "react-router-dom";
-import UserProfilePage from '../../pages/UserProfilePage';
+import { Navigate } from 'react-router-dom';
 
-const AppHeader = ({ accessToken, username, logout, searchTerm, setSearchTerm, setSearchResults, setIsSearch }) => {
+const AppHeader = ({ accessToken, username, logout, loggedIn, searchTerm, setSearchTerm, setSearchResults, setIsSearch }) => {
   const [showUserProfile, setShowUserProfile] = useState(false);
 
   const handleSearchChange = (e) => {
@@ -29,9 +27,7 @@ const AppHeader = ({ accessToken, username, logout, searchTerm, setSearchTerm, s
   };
 
   const handleUserProfileClick = () => {
-    console.log("Clicked");
     setShowUserProfile(true);
-    
   };
 
   return (
@@ -49,7 +45,6 @@ const AppHeader = ({ accessToken, username, logout, searchTerm, setSearchTerm, s
       <div className="user-profile" onClick={handleUserProfileClick}>
         <div className="user-info">
           <div className="user-avatar">
-            {/* Placeholder for profile photo */}
             <img src={image} alt="Profile" />
           </div>
           <div className="user-name">{username}</div>
@@ -58,7 +53,7 @@ const AppHeader = ({ accessToken, username, logout, searchTerm, setSearchTerm, s
           Logout
         </button>
       </div>
-      {showUserProfile && <Navigate to="/user-profile" replace={true} />} {/* Render the UserProfile component if showUserProfile is true */}
+      {showUserProfile && <Navigate to="/user-profile" state={{accessToken:accessToken, loggedIn:loggedIn}} replace={true} />} 
     </header>
   );
 };

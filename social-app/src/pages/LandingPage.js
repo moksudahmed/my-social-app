@@ -22,7 +22,7 @@ const LandingPage = ({ accessToken, loggedIn, username, logout }) => {
   
   return (
     <div>
-      <AppHeader accessToken={accessToken} username={username} logout={logout} searchTerm={searchTerm} setSearchTerm = {setSearchTerm} setSearchResults={setSearchResults} setIsSearch={setIsSearch}/>      
+      <AppHeader accessToken={accessToken} username={username} logout={logout} loggedIn={loggedIn} searchTerm={searchTerm} setSearchTerm = {setSearchTerm} setSearchResults={setSearchResults} setIsSearch={setIsSearch}/>      
       <div className="mainContent">
         <LeftSidebar accessToken={accessToken} loggedIn={loggedIn} />
         <main className="mainSection">
