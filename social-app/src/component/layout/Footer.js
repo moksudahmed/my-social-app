@@ -1,5 +1,4 @@
 import FriendList from "../Friends/FriendList";
-import UserProfile from "../user/UserProfile";
 
 const AppFooter = ({accessToken}) => {
     const userId = '65b74d5c578e10ea9c1ba474';

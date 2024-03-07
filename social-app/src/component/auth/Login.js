@@ -1,11 +1,9 @@
-// Login.js
-
 import React, { useState } from 'react';
 import styles from './module.css';
 
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
-const Login = ({ setLoggedIn, setAccessToken, setShowLogin }) => {
+const Login = ({ setLoggedIn, setShowLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -21,7 +19,8 @@ const Login = ({ setLoggedIn, setAccessToken, setShowLogin }) => {
 
       if (response.ok) {
         const data = await response.json();
-        setAccessToken(data.access_token);
+        // Store accessToken in localStorage
+        localStorage.setItem('accessToken', data.access_token);
         setLoggedIn(true);
         setShowLogin(false);
       } else {

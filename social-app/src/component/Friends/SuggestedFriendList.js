@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './SuggestedFriendList.css'; // Import CSS for styling
 
 const SuggestedFriendList = ({ accessToken }) => {
   const [friends, setFriends] = useState([]);
@@ -40,13 +41,13 @@ const SuggestedFriendList = ({ accessToken }) => {
   };
 
   return (
-    <div>
-      <h2>Friends Suggestions</h2>
-      <ul>
+    <div className="suggested-friend-container">
+      <h2 className="suggested-friend-heading">Friends Suggestions</h2>
+      <ul className="friend-list">
         {friends.map((user) => (
-          <li key={user.friend_id}>
-            {user.name}
-            <button onClick={() => sendFriendRequest(user.friend_id)}>
+          <li key={user.friend_id} className="friend-item">
+            <span>{user.name}</span>
+            <button className="send-request-button" onClick={() => sendFriendRequest(user.friend_id)}>
               Send Friend Request
             </button>
           </li>

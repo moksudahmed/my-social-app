@@ -8,7 +8,7 @@ import Help from "./pages/Help";
 import Login from "./component/auth/Login"; // Import the Login component
 import './App.css';
 import './module.css';
-import UserProfilePage from "./pages/UserProfilePage";
+import UserProfile from "./pages/UserProfile";
 
 
 export default function App() {
@@ -19,7 +19,7 @@ export default function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />          
           <Route path="about-us" element={<AboutPage />} />
-          <Route path="user-profile" element={<UserProfilePage />} />          
+          <Route path="user-profile" element={<UserProfile />} />          
           <Route path="help" element={<Help />} />
           <Route path="*" element={<NoPage />} />
         </Route>        

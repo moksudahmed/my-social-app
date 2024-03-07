@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './FriendList.css'; // Import CSS for styling
 
 const FriendList = ({ accessToken }) => {
   const [friends, setFriends] = useState([]);
@@ -12,7 +13,6 @@ const FriendList = ({ accessToken }) => {
             Authorization: `Bearer ${accessToken}`,
           },
         });
-        console.log(response.data.friends);
         setFriends(response.data.friends);
       } catch (error) {
         console.error('Error fetching friends:', error);
@@ -45,13 +45,13 @@ const FriendList = ({ accessToken }) => {
   };
 
   return (
-    <div>
-      <h2>Your Friends</h2>
-      <ul>
-        {friends.map((friend, index) => (
-          <li key={index}>
-            {friend.name}
-            <button onClick={() => unfriend(friend.friend_id)}>
+    <div className="friend-list-container">
+      <h2 className="friend-list-heading">Your Friends</h2>
+      <ul className="friend-list">
+        {friends.map((friend) => (
+          <li key={friend.friend_id} className="friend-list-item">
+            <span className="friend-name">{friend.name}</span>
+            <button className="unfriend-button" onClick={() => unfriend(friend.friend_id)}>
               Unfriend
             </button>
           </li>

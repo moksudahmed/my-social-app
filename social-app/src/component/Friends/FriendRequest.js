@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './FriendRequest.css'; // Import CSS for styling
 
 const FriendRequest = ({ userId, accessToken }) => {
   const [userData, setUserData] = useState({});
-  const [friendList, setFriendList] = useState([]);
   const [pendingRequest, setPendingRequest] = useState([]);
 
   const fetchUserData = async () => {
@@ -27,13 +27,12 @@ const FriendRequest = ({ userId, accessToken }) => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      console.log("Get Request Test")
-      console.log(response.data);
       setPendingRequest(response.data || []);
     } catch (error) {
       console.error('Error fetching friend list:', error);
     }
   };
+
   const acceptFriendRequest = async (friendId) => {
     try {      
       await axios.post(
@@ -46,36 +45,34 @@ const FriendRequest = ({ userId, accessToken }) => {
           },
         }
       );
-        console.log(friendId);
-      //setFriendRequestSent(true);
     } catch (error) {
       console.error('Error sending friend request:', error);
     }
   };
+
   useEffect(() => {
-    // Fetch user data, friend list, and suggested users when the component mounts
+    // Fetch user data and pending friend requests when the component mounts
     fetchUserData();
     getFriendRequest();
   }, []);
 
   return (
-    <div>
-      <h1>{userData.name}</h1>
-      <p>Friend List: {friendList.join(', ')}</p>
+    <div className="friend-request-container">
+      <h1 className="user-name">{userData.name}</h1>
 
-      <div>
-          <h2>Friend Request</h2>
-          <ul>
-            {pendingRequest.map((user) => (
-              <li key={user.friend_id}>
-                {user.name}
-                <button onClick={() => acceptFriendRequest(user.friend_id)}>
-                  Accept Request
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+      <div className="friend-request-section">
+        <h2 className="friend-request-heading">Friend Requests</h2>
+        <ul className="friend-request-list">
+          {pendingRequest.map((user) => (
+            <li key={user.friend_id} className="friend-request-item">
+              <span className="friend-name">{user.name}</span>
+              <button className="accept-request-button" onClick={() => acceptFriendRequest(user.friend_id)}>
+                Accept Request
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

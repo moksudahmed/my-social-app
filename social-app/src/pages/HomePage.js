@@ -7,12 +7,13 @@ import axios from 'axios';
 
 const HomePage = () => {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [accessToken, setAccessToken] = useState('');
+  const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken') || '');
   const [showRegistration, setShowRegistration] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [username, setUsername] = useState('');
 
   const fetchUser = async () => {
+    console.log(accessToken)
     try {
       const response = await axios.get('http://127.0.0.1:5000/user/get_username', {
         headers: {
@@ -29,16 +30,22 @@ const HomePage = () => {
   const logout = () => {
     setLoggedIn(false);
     setAccessToken('');
+    localStorage.removeItem('accessToken'); // Clear accessToken from localStorage
   };
 
   useEffect(() => {
     const fetchData = async () => {
-        await fetchUser();
+      // Check if there is an accessToken in localStorage
+      const storedToken = localStorage.getItem('accessToken');
+      if (storedToken) {
+        setLoggedIn(true);
+        setAccessToken(storedToken);
+      }
+      await fetchUser();
     };
 
-    fetchData();    
-  }, [loggedIn]);
-
+    fetchData();
+  }, []);
 
   return (
     <div>

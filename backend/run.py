@@ -348,9 +348,8 @@ def get_all_posts_by_user():
         
         # Query the database to fetch all posts of the current user and their friends
         #posts = list(db.posts.find({'user_id': {'$in': user_ids}}).sort("created_at", -1))
-        posts = list(db.posts.find( {'user_id': user_ids } ).sort("created_at", -1))
-        
-        print(posts)
+        posts = list(db.posts.find({'user_id': ObjectId(current_user_id) }).sort("created_at", -1))        
+       
         # Serialize the posts
         serialized_posts = json.loads(json_util.dumps(posts))
 

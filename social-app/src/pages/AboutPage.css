@@ -1,0 +1,23 @@
+.about-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .about-content {
+    max-width: 600px;
+    padding: 20px;
+  }
+  
+  .about-heading {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .about-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+  }
+  

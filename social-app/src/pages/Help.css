@@ -1,0 +1,53 @@
+.help-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .help-content {
+    max-width: 600px;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .help-heading {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .help-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+  }
+  
+  .help-section {
+    margin-bottom: 40px;
+  }
+  
+  .help-section-heading {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+  
+  .help-section-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+  }
+  
+  .help-link {
+    display: inline-block;
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+  
+  .help-link:hover {
+    background-color: #0056b3;
+  }
+  

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
-import './UserProfilePage.css'; // Import CSS for styling
+import './UserProfile.css'; // Import CSS for styling
 import image from '../images/placeholder.jpg';
 import Feed from '../component/Feed';
 
@@ -130,7 +130,7 @@ const UserProfilePage = () => {
           </ul>
         </div>
         <div className="feed-section">
-          <Feed accessToken={location.state.accessToken} loggedIn={location.state.loggedIn} />
+          <Feed accessToken={location.state.accessToken} loggedIn={location.state.loggedIn} type={'individual'}/>
         </div>
       </div>
     </div>

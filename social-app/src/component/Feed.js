@@ -9,19 +9,28 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
-const Feed = ({accessToken, loggedIn}) => {
+const Feed = ({accessToken, loggedIn, type}) => {
   const [posts, setPosts] = useState([]);
   const [newPostContent, setNewPostContent] = useState('');
   const [showPhotoPost, setShowPhotoPost] = useState(false);
-  
+  console.log(type)
   const fetchPosts = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/posts-by-user`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-     
+      let response;
+      if (type === 'all') {
+        response = await fetch(`${API_BASE_URL}/posts`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+      } else {
+        response = await fetch(`${API_BASE_URL}/posts-by-user`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+      }
+  
       if (response.ok) {
         const data = await response.json();
         setPosts(data);
@@ -33,6 +42,7 @@ const Feed = ({accessToken, loggedIn}) => {
       console.error('Error during fetching posts:', error);
     }
   };
+  
 
 
   const createPost = async () => {

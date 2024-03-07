@@ -10,6 +10,7 @@ import axios from 'axios';
 
 const MainSection = ({ accessToken, loggedIn, username, searchResults, setIsSearch, isSearch }) => {
   const [activeTab, setActiveTab] = useState('feed');
+  const [type, setType] = useState('all');
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);  
@@ -20,7 +21,7 @@ const MainSection = ({ accessToken, loggedIn, username, searchResults, setIsSear
   const renderTabContent = () => {
     switch (activeTab) {
       case 'feed':
-        return <Feed accessToken={accessToken} loggedIn={loggedIn}/>;
+        return <Feed accessToken={accessToken} loggedIn={loggedIn} type={type}/>;
       case 'friends':
         return <Friends accessToken={accessToken} loggedIn={loggedIn} username={username} />;
       case 'notifications':

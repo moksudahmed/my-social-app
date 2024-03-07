@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './PendingList.css'; // Import CSS for styling
 
 const PendingList = ({ accessToken }) => {
   const [friends, setFriends] = useState([]);
@@ -40,13 +41,13 @@ const PendingList = ({ accessToken }) => {
   };
 
   return (
-    <div>
-      <h2>Friends Pending</h2>
-      <ul>
+    <div className="pending-list-container">
+      <h2 className="pending-list-heading">Friends Pending</h2>
+      <ul className="friend-list">
         {friends.map((user) => (
-          <li key={user.friend_id}>
-            {user.name}
-            <button onClick={() => acceptFriendRequest(user.friend_id)}>
+          <li key={user.friend_id} className="friend-item">
+            <span>{user.name}</span>
+            <button className="accept-request-button" onClick={() => acceptFriendRequest(user.friend_id)}>
               Accept Request
             </button>
           </li>
