@@ -34,9 +34,87 @@ except Exception as e:
 
 jwt = JWTManager(app)
 
+# Function to check if file extension is allowed
+def allowed_file(filename):
+    # Allowed extensions for file uploads
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/register', methods=['POST'])
 def register():
+    try:
+        UPLOAD_FOLDER = 'uploads/profile'        
+
+        data = request.form
+        print(data)
+        # Check if the post request has the file part
+        if 'profile_picture' not in request.files:
+            return jsonify({'error': 'No profile picture provided'}), 400
+
+        file = request.files['profile_picture']
+
+        # If user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(UPLOAD_FOLDER, filename))
+
+            new_user = {
+                'username': data['username'],
+                'password': data['password'],
+                'email': data['email'],
+                'firstname': data['firstname'],
+                'lastname': data['lastname'],
+                'profile_picture': os.path.join(UPLOAD_FOLDER, filename)
+            }
+
+            user_id = db.users.insert_one(new_user).inserted_id
+            return jsonify({'message': 'User registered successfully', 'user_id': str(user_id)}), 201
+        else:
+            return jsonify({'error': 'Invalid file format'}), 400
+
+    except Exception as e:
+        return jsonify({'message': f'Error during registration: {e}'}), 500
+
+@app.route('/upload-profile-picture', methods=['POST'])
+def upload_profile_picture():
+
+    # Configure upload folder
+    UPLOAD_FOLDER = 'uploads/profile'
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+    # Check if the post request has the file part
+    if 'profilePicture' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+
+    file = request.files['profilePicture']
+
+    # If user does not select file, browser also
+    # submit an empty part without filename
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return jsonify({'message': 'Profile picture uploaded successfully'}), 200
+    else:
+        return jsonify({'error': 'File format not allowed'}), 400
+    
+@app.route('/get-profile-picture/<path:filename>', methods=['GET'])
+def get_profile_picture(filename):
+    UPLOAD_FOLDER = 'uploads/profile'    
+    return send_from_directory(UPLOAD_FOLDER, filename)
+
+
+@app.route('/register2', methods=['POST'])
+def register2():
  
     try:
      
@@ -744,6 +822,8 @@ def blocked():
         return jsonify({'message': 'Successfully blocked'}), 200
 
     return jsonify({'message': 'Friend not found'}), 404
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

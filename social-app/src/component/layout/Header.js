@@ -1,11 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AppHeader.css';
-import image from '../../images/placeholder.jpg';
 import { Navigate } from 'react-router-dom';
 
 const AppHeader = ({ accessToken, username, logout, loggedIn, searchTerm, setSearchTerm, setSearchResults, setIsSearch }) => {
+  const [profilePicture, setProfilePicture] = useState(null);
   const [showUserProfile, setShowUserProfile] = useState(false);
+
+  useEffect(() => {
+    const fetchProfilePicture = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/get-profile-picture/WhatsApp_Image_2023-11-21_at_4.52.39_PM.jpeg', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          responseType: 'arraybuffer',
+        });
+
+        const base64Image = Buffer.from(response.data, 'binary').toString('base64');
+        const imageDataUrl = `data:image/jpeg;base64,${base64Image}`;
+
+        setProfilePicture(imageDataUrl);
+      } catch (error) {
+        console.error('Error fetching profile picture:', error);
+      }
+    };
+
+    fetchProfilePicture();
+  }, [accessToken]);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -45,7 +67,7 @@ const AppHeader = ({ accessToken, username, logout, loggedIn, searchTerm, setSea
       <div className="user-profile" onClick={handleUserProfileClick}>
         <div className="user-info">
           <div className="user-avatar">
-            <img src={image} alt="Profile" />
+            {profilePicture && <img src={profilePicture} alt="Profile Picture" />}
           </div>
           <div className="user-name">{username}</div>
         </div>
@@ -53,7 +75,7 @@ const AppHeader = ({ accessToken, username, logout, loggedIn, searchTerm, setSea
           Logout
         </button>
       </div>
-      {showUserProfile && <Navigate to="/user-profile" state={{accessToken:accessToken, loggedIn:loggedIn}} replace={true} />} 
+      {showUserProfile && <Navigate to="/user-profile" state={{ accessToken: accessToken, loggedIn: loggedIn }} replace={true} />}
     </header>
   );
 };

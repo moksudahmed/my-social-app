@@ -1,8 +1,7 @@
-// Registration.js
-
 import React, { useState } from 'react';
+import axios from 'axios';
 import styles from './registration.css';
-
+import { useLocation } from 'react-router-dom';
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
 const Registration = () => {
@@ -11,24 +10,58 @@ const Registration = () => {
   const [firstname, setFirstName] = useState('');
   const [lastname, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [profilePicture, setProfilePicture] = useState('');
+  const location = useLocation();
+  //const [profilePicture, setProfilePicture] = useState(image); // State for profile picture
   const [registrationStatus, setRegistrationStatus] = useState('');
+
+  const handleProfilePictureChange2 = (e) => {
+    const file = e.target.files[0];
+    setProfilePicture(file);
+  };
+
+  // Function to handle profile picture change
+  const handleProfilePictureChange = async (e) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('profilePicture', file);
+
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/upload-profile-picture', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${location.state.accessToken}`,
+        },
+      });
+      console.log('Profile picture uploaded successfully');
+      // Update profile picture in UI
+      setProfilePicture(URL.createObjectURL(file));
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+    }
+  };
 
   const register = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/register`, {
-        method: 'POST',
+      const formData = new FormData();
+      formData.append('username', username);
+      formData.append('password', password);
+      formData.append('firstname', firstname);
+      formData.append('lastname', lastname);
+      formData.append('email', email);
+      formData.append('profile_picture', profilePicture);
+
+      const response = await axios.post(`${API_BASE_URL}/register`, formData, {
         headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password, email, firstname, lastname }),
+          'Content-Type': 'multipart/form-data'
+        }
       });
 
-      if (response.ok) {
+      if (response.status === 201) {
         setRegistrationStatus('Registration successful');
         // Add a success message or redirect to the login page
       } else {
-        const errorData = await response.json();
-        setRegistrationStatus(`Registration failed: ${errorData.error}`);
+        setRegistrationStatus(`Registration failed: ${response.data.message}`);
         // Display an error message to the user
       }
     } catch (error) {
@@ -38,12 +71,13 @@ const Registration = () => {
   };
 
   const handleCancel = () => {
-    // Add logic to cancel registration
     setUsername('');
     setPassword('');
     setFirstName('');
     setLastName('');
     setEmail('');
+    setProfilePicture(null);
+    setRegistrationStatus('');
   };
 
   return (
@@ -107,6 +141,17 @@ const Registration = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
+            className={styles.inputField}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="profilePicture">Profile Picture</label>
+          <input
+            type="file"
+            id="profilePicture"
+            accept="image/*"
+            onChange={handleProfilePictureChange}
             className={styles.inputField}
           />
         </div>

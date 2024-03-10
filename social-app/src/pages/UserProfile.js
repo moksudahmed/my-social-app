@@ -11,7 +11,8 @@ const UserProfilePage = () => {
   const [suggestedUsers, setSuggestedUsers] = useState([]);
   const [friendRequestSent, setFriendRequestSent] = useState(false);
   const [pendingRequest, setPendingRequest] = useState([]);
-  let location = useLocation();
+  const [profilePicture, setProfilePicture] = useState(image); // State for profile picture
+  const location = useLocation();
 
   const fetchUserData = async () => {
     try {
@@ -83,6 +84,27 @@ const UserProfilePage = () => {
     }
   };
 
+  // Function to handle profile picture change
+  const handleProfilePictureChange = async (event) => {
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append('profilePicture', file);
+
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/upload-profile-picture', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${location.state.accessToken}`,
+        },
+      });
+      console.log('Profile picture uploaded successfully');
+      // Update profile picture in UI
+      setProfilePicture(URL.createObjectURL(file));
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+    }
+  };
+
   useEffect(() => {
     // Fetch user data, friend list, and suggested users when the component mounts
     fetchUserData();
@@ -93,9 +115,11 @@ const UserProfilePage = () => {
 
   return (
     <div className="profile-container">
-      <div className="profile-header">
+       <div className="profile-header">
         <h1>{userData.name}</h1>
-        <img src={image} alt="Profile" className="profile-image" />
+        <img src={profilePicture} alt="Profile" className="profile-image" />
+        {/* Input for profile picture change */}
+        <input type="file" accept="image/*" onChange={handleProfilePictureChange} />
       </div>
       <div className="profile-content">
         <div className="friend-list">
@@ -130,11 +154,14 @@ const UserProfilePage = () => {
           </ul>
         </div>
         <div className="feed-section">
-          <Feed accessToken={location.state.accessToken} loggedIn={location.state.loggedIn} type={'individual'}/>
+          <Feed accessToken={location.state.accessToken} loggedIn={location.state.loggedIn} type={'individual'} />
         </div>
       </div>
     </div>
   );
+
 };
 
 export default UserProfilePage;
+
+
